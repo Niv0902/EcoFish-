@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Navigation from './Navigation';
 import HomeContent from './HomeContent';
-import Graphs from '../Statistics/Graphs.jsx';
+import Graphs from '../StatisticsComponents/Graphs.jsx';
 
 const Homepage = () => {
   const [activeTab, setActiveTab] = useState('home');

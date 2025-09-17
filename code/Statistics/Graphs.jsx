@@ -270,7 +270,6 @@ const Graphs = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold text-gray-700 mb-2">Loading Environmental Data</h2>
-          <p className="text-gray-600">Connecting to Firebase database...</p>
         </div>
       </div>
     );
@@ -518,7 +517,7 @@ const Graphs = () => {
                             label: () => '',
                             footer: () => [],
                             afterBody: () => [
-                              'ריכוזי מתכות כבדות (µg/L), העלולות להיות רעילות גם ברמות נמוכות, מוצגות כאן כממוצע לפי עומק;'
+                              'ריכוזי מתכות כבדות (µg/L), העלולות להיות רעילות גם ברמות נמוכות, מוצגות כאן כממוצע לפי עומק.'
                             ]
                           }
                         }

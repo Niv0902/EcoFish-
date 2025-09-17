@@ -93,11 +93,7 @@ const Homepage = () => {
         );
         
      case 'statistics':
-        return (
-        <Graphs
-          dbPath="kinneret/readings"
-        />
-      );
+        return <Graphs />;
         
       case 'gallery':
         return (

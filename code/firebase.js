@@ -1,3 +1,4 @@
+//This code is for the decoding of the Firebase config from a base64 string stored in an environment variable.
 require('dotenv').config();
 
 const firebaseConfig = JSON.parse(

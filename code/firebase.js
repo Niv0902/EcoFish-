@@ -1,8 +1,17 @@
-//This code is for the decoding of the Firebase config from a base64 string stored in an environment variable.
-require('dotenv').config();
+// Firebase configuration for browser environment
+import { initializeApp } from 'firebase/app';
+import { getDatabase } from 'firebase/database';
 
-const firebaseConfig = JSON.parse(
-  Buffer.from(process.env.VITE_FIREBASE_CONFIG_BASE64, 'base64').toString('utf-8')
-);
+// Minimal Firebase configuration with database URL
+const firebaseConfig = {
+  databaseURL: "https://ecofish-7d154-default-rtdb.firebaseio.com",
+  projectId: "ecofish-7d154"
+};
 
-console.log("Firebase Config Loaded:", firebaseConfig);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize Database
+export const db = getDatabase(app);
+
+export default app;

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { Scatter, Bar } from 'react-chartjs-2';
-import data from './FinalDB-16.9.json';
 
 // Helper to extract all chemical samples
 function extractSamples() {

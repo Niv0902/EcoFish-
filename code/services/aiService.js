@@ -1,3 +1,13 @@
+// Fetch heavy metals thresholds from Firebase
+export async function getHeavyMetalsThresholds() {
+  const metalsRef = ref(db, 'Heavy_Metals'); // Updated path to match Firebase reference
+  const snapshot = await get(metalsRef);
+  if (snapshot.exists()) {
+    return snapshot.val();
+  } else {
+    throw new Error('No heavy metals data found in Firebase');
+  }
+}
 // AI Service for generating pollution factor explanations
 import { db } from '../firebase.js';
 import { ref, get } from 'firebase/database';

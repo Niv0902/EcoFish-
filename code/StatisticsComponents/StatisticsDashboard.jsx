@@ -88,7 +88,7 @@ const StatisticsDashboard = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold text-blue-800 mb-3"> EcoFish Analytics🌊</h1>
+          <h1 className="text-5xl font-bold text-blue-800 mb-3"> EcoFish Analytics 🌊</h1>
           <p className="text-xl text-gray-600">Environmental Data Visualization Dashboard</p>
           <div className="w-60 md:w-100 h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-green-500 mx-auto mt-4 rounded-full shadow-sm"></div>
         </div>
@@ -100,8 +100,8 @@ const StatisticsDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-bold text-gray-800 mb-2">Chemical Analysis</h3>
-                  <p className="text-4xl font-bold text-green-600">{(chartData.chlorophyll?.length || 0) + (chartData.nitrate?.length || 0)}</p>
-                  <p className="text-gray-500 mt-1">{(chartData.chlorophyll?.length || 0)} Chlorophyll + {(chartData.nitrate?.length || 0)} Nitrate samples</p>
+                  <p className="text-4xl font-bold text-green-600">{(chartData.chlorophyll?.length || 0) + (chartData.nitrate?.length || 0) + (chartData.nitrite?.length || 0)}</p>
+                  <p className="text-gray-500 mt-1">{(chartData.chlorophyll?.length || 0)} Chlorophyll + {(chartData.nitrate?.length || 0)} Nitrate + {(chartData.nitrite?.length || 0)} Nitrite samples</p>
                 </div>
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                   <span className="text-3xl">💧</span>
@@ -162,7 +162,7 @@ const StatisticsDashboard = () => {
         </div>
 
         {/* Single Chart Container */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+  <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 pt-0 min-h-[800px] md:min-h-[800px] w-full md:w-[90%] mx-auto flex flex-col items-stretch">
           {activeChart === 'metalsThresholds' && (
             <HeavyMetalsThresholdsChart metalsThresholds={chartData.metalsThresholds || []} />
           )}

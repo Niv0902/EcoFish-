@@ -56,9 +56,31 @@ const EcoliBeachLineChart = ({ beaches }) => {
     }
   };
 
+  const chartRef = React.useRef(null);
+  const handleDownload = () => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image('image/jpeg', 1);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `EcoliBeachLineChart.jpg`;
+      link.click();
+    }
+  };
+
   return (
     <div className="w-full">
-      <Line data={data} options={options} />
+      <Line ref={chartRef} data={data} options={options} />
+                    <div className="flex justify-start mt-4">
+        <button
+          onClick={handleDownload}
+          className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors"
+        >
+          Download 
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+          </svg>
+        </button>
+      </div>
       <div className="mt-4 text-sm text-gray-600 text-center">
         This line chart shows average E.coli levels for each beach, with colored area for visual emphasis.
       </div>

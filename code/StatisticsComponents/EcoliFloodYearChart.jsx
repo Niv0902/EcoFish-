@@ -102,6 +102,17 @@ const EcoliFloodYearChart = () => {
       y: { title: { display: true, text: 'Avg E.coli' }, beginAtZero: true },
     },
   };
+  const chartRef = React.useRef(null);
+  const handleDownload = () => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image('image/jpeg', 1);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `EcoliFloodYearChart.jpg`;
+      link.click();
+    }
+  };
+
   return (
     <div className="w-full px-2 sm:px-4 md:px-6">
       <div className="mb-2 text-center text-xs sm:text-sm md:text-base break-words">
@@ -121,7 +132,7 @@ const EcoliFloodYearChart = () => {
         )}
       </div>
       <div className="w-full h-[20rem] sm:h-[24rem] md:h-[28rem]">
-        <Bar data={data} options={{
+        <Bar ref={chartRef} data={data} options={{
           ...options,
           plugins: {
             ...options.plugins,
@@ -171,6 +182,17 @@ const EcoliFloodYearChart = () => {
             },
           },
         }} />
+      </div>
+  <div className="flex justify-start mt-4">
+        <button
+          onClick={handleDownload}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium flex items-center"
+              >
+                  Download
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+                </svg>
+              </button>
       </div>
     </div>
   );

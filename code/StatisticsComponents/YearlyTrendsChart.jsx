@@ -2,120 +2,147 @@ import React from 'react';
 import { Line } from 'react-chartjs-2';
 
 const YearlyTrendsChart = ({ chartData, hasAnimated }) => {
+  const chartRef = React.useRef(null);
+  const handleDownload = () => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image('image/jpeg', 1.0);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `YearlyTrendsChart.jpg`;
+      link.click();
+    } else {
+      alert('Chart image download not supported in this browser.');
+    }
+  };
   return (
     <div>
       <div className="h-[28rem] mb-8">
         {chartData.yearlyAverages && chartData.yearlyAverages.length ? (
-          <Line
-            key="yearly-trends"
-            data={{
-              labels: chartData.yearlyAverages.map(d => d.year),
-              datasets: [
-                {
-                  label: 'Chlorophyll-a Avg (µg/L)',
-                  data: chartData.yearlyAverages.map(d => d.chlorophyllAvg || null),
-                  borderColor: 'rgba(34,197,94,0.9)',
-                  backgroundColor: 'rgba(34,197,94,0.1)',
-                  yAxisID: 'y',
-                  tension: 0.3,
-                  pointRadius: 5,
-                  pointHoverRadius: 8
+          <>
+            <Line
+              key="yearly-trends"
+              ref={chartRef}
+              data={{
+                labels: chartData.yearlyAverages.map(d => d.year),
+                datasets: [
+                  {
+                    label: 'Chlorophyll-a Avg (µg/L)',
+                    data: chartData.yearlyAverages.map(d => d.chlorophyllAvg || null),
+                    borderColor: 'rgba(34,197,94,0.9)',
+                    backgroundColor: 'rgba(34,197,94,0.1)',
+                    yAxisID: 'y',
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                  },
+                  {
+                    label: 'Nitrate Avg (mg/L)',
+                    data: chartData.yearlyAverages.map(d => d.nitrateAvg || null),
+                    borderColor: 'rgba(59,130,246,0.9)',
+                    backgroundColor: 'rgba(59,130,246,0.1)',
+                    yAxisID: 'y1',
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                  },
+                  {
+                    label: 'E.coli Avg',
+                    data: chartData.yearlyAverages.map(d => d.ecoliAvg || null),
+                    borderColor: 'rgba(249,115,22,0.9)',
+                    backgroundColor: 'rgba(249,115,22,0.1)',
+                    yAxisID: 'y2',
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                  }
+                ]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                  duration: 1200,
+                  easing: 'easeOutQuart',
+                  animateScale: true,
+                  animateRotate: true
                 },
-                {
-                  label: 'Nitrate Avg (mg/L)',
-                  data: chartData.yearlyAverages.map(d => d.nitrateAvg || null),
-                  borderColor: 'rgba(59,130,246,0.9)',
-                  backgroundColor: 'rgba(59,130,246,0.1)',
-                  yAxisID: 'y1',
-                  tension: 0.3,
-                  pointRadius: 5,
-                  pointHoverRadius: 8
+                interaction: {
+                  mode: 'index',
+                  intersect: false,
                 },
-                {
-                  label: 'E.coli Avg',
-                  data: chartData.yearlyAverages.map(d => d.ecoliAvg || null),
-                  borderColor: 'rgba(249,115,22,0.9)',
-                  backgroundColor: 'rgba(249,115,22,0.1)',
-                  yAxisID: 'y2',
-                  tension: 0.3,
-                  pointRadius: 5,
-                  pointHoverRadius: 8
-                }
-              ]
-            }}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              animation: {
-                duration: 1200,
-                easing: 'easeOutQuart',
-                animateScale: true,
-                animateRotate: true
-              },
-              interaction: {
-                mode: 'index',
-                intersect: false,
-              },
-              plugins: {
-                legend: { position: 'top' },
-                tooltip: {
-                  backgroundColor: 'rgba(243,244,246,0.95)',
-                  titleColor: '#111827',
-                  bodyColor: '#374151',
-                  borderColor: '#9CA3AF',
-                  borderWidth: 1,
-                  padding: 12,
-                  callbacks: {
-                    afterBody: () => [
-                      'Annual trends show average environmental indicators over the years. This helps identify long-term patterns in water quality changes and environmental health.'
-                    ]
+                plugins: {
+                  legend: { position: 'top' },
+                  tooltip: {
+                    backgroundColor: 'rgba(243,244,246,0.95)',
+                    titleColor: '#111827',
+                    bodyColor: '#374151',
+                    borderColor: '#9CA3AF',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                      afterBody: () => [
+                        'Annual trends show average environmental indicators over the years. This helps identify long-term patterns in water quality changes and environmental health.'
+                      ]
+                    }
+                  },
+                  zoom: {
+                    pan: { enabled: true, mode: 'xy' },
+                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
                   }
                 },
-                zoom: {
-                  pan: { enabled: true, mode: 'xy' },
-                  zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
-                }
-              },
-              hover: { mode: 'nearest', intersect: false },
-              scales: {
-                x: {
-                  title: {
+                hover: { mode: 'nearest', intersect: false },
+                scales: {
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Year'
+                    }
+                  },
+                  y: {
+                    type: 'linear',
                     display: true,
-                    text: 'Year'
+                    position: 'left',
+                    title: {
+                      display: true,
+                      text: 'Chlorophyll-a (µg/L)'
+                    },
+                    grid: {
+                      drawOnChartArea: false,
+                    },
+                  },
+                  y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                      display: true,
+                      text: 'Nitrate (mg/L)'
+                    },
+                    grid: {
+                      drawOnChartArea: false,
+                    },
+                  },
+                  y2: {
+                    type: 'logarithmic',
+                    display: false,
+                    position: 'right',
                   }
-                },
-                y: {
-                  type: 'linear',
-                  display: true,
-                  position: 'left',
-                  title: {
-                    display: true,
-                    text: 'Chlorophyll-a (µg/L)'
-                  },
-                  grid: {
-                    drawOnChartArea: false,
-                  },
-                },
-                y1: {
-                  type: 'linear',
-                  display: true,
-                  position: 'right',
-                  title: {
-                    display: true,
-                    text: 'Nitrate (mg/L)'
-                  },
-                  grid: {
-                    drawOnChartArea: false,
-                  },
-                },
-                y2: {
-                  type: 'logarithmic',
-                  display: false,
-                  position: 'right',
                 }
-              }
-            }}
-          />
+              }}
+            />
+            <div className="flex justify-start mt-4 pl-4">
+              <button
+                className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium"
+                onClick={handleDownload}
+              >
+                Download
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+                </svg>
+              </button>
+              <div className="mb-6"></div>
+            </div>
+          </>
         ) : (
           <p className="text-center text-gray-500">No yearly data available</p>
         )}

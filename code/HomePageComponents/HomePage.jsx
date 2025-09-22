@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Navigation from './Navigation';
 import HomeContent from './HomeContent';
-import Graphs from '../StatisticsComponents/Graphs.jsx';
+import StatisticsDashboard from '../StatisticsComponents/StatisticsDashboard.jsx';
 import PollutionFactors from '../EcoReportComponents/PollutionFactors.jsx';
 import GalleryCarousel from '../GalleryComponents/GalleryCarousel.jsx';
 
@@ -90,7 +90,7 @@ const Homepage = () => {
         return <PollutionFactors />;
 
       case 'statistics':
-        return <Graphs />;
+        return <StatisticsDashboard />;
 
       case 'gallery':
         return (

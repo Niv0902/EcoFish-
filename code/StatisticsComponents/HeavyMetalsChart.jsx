@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bar } from 'react-chartjs-2';
 
 const HeavyMetalsChart = ({ chartData, hasAnimated }) => {
@@ -10,6 +10,7 @@ const HeavyMetalsChart = ({ chartData, hasAnimated }) => {
     }
   }, [chartData.metalList, selectedMetal]);
 
+  const chartRef = useRef(null);
   return (
   <div className="pb-16">
       <div className="flex flex-wrap items-center gap-3 mb-2"></div>
@@ -30,6 +31,7 @@ const HeavyMetalsChart = ({ chartData, hasAnimated }) => {
           <>
             <Bar
               key="metals-depth-bar"
+              ref={chartRef}
               data={{
                 labels: Object.keys(chartData.perDepthMetal[selectedMetal]).sort((a,b)=>Number(a)-Number(b)),
                 datasets: [{
@@ -93,6 +95,25 @@ const HeavyMetalsChart = ({ chartData, hasAnimated }) => {
                 }
               }}
             />
+            <button
+              className="mt-2 mb-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 text-sm flex items-center"
+              onClick={() => {
+                const chartInstance = chartRef.current?.chartInstance || chartRef.current?.instance || chartRef.current;
+                if (chartInstance && chartInstance.toBase64Image) {
+                  const link = document.createElement('a');
+                  link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+                  link.download = `${selectedMetal}-by-depth.jpg`;
+                  link.click();
+                } else {
+                  alert('Chart image download not supported in this browser.');
+                }
+              }}
+            >
+              Download
+                                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+          </svg>
+            </button>
             <div className="mt-4 px-4 text-gray-700 text-sm text-left break-words">
               <b>What is measured?</b> Heavy metals (µg/L) such as lead, mercury, and cadmium are measured at different depths. Even low concentrations can be toxic to aquatic life and humans.<br/>
               <b>Trends:</b> Higher concentrations at certain depths may indicate pollution sources or sediment release. Lower values suggest cleaner water at those depths.

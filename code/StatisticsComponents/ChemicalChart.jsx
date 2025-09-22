@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 
 const ChemicalChart = ({ chartData, hasAnimated }) => {
@@ -14,6 +14,7 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
     return grouped.map(vals => vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null);
   };
 
+  const chartRef = useRef(null);
   // Memoized chart data for monthly trends
   const chartConfig = useMemo(() => {
     let raw, label, color;
@@ -51,7 +52,7 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
   }, [selectedChemical, chartData]);
 
     return (
-      <div className="h-[28rem]">
+  <div className="h-[30rem]">
         <div className="flex items-center gap-3 mb-3">
           <label className="text-sm text-gray-600">Select metric:</label>
           <select
@@ -70,6 +71,7 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
           <>
             <Line
               key={`chemicals-${selectedChemical}`}
+              ref={chartRef}
               data={chartConfig}
               options={{
                 responsive: true,
@@ -91,7 +93,7 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
                     bodyColor: '#374151',
                     borderColor: '#9CA3AF',
                     borderWidth: 1,
-                    padding: 12,
+                    padding: 16,
                     callbacks: {
                       afterBody: () => [
                         selectedChemical === 'chlorophyll'
@@ -126,7 +128,26 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
                 }
               }}
             />
-            <div className="mt-4 px-2 text-gray-700 text-sm text-center">
+            <button
+              className="mt-2 mb-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 text-sm flex items-center"
+              onClick={() => {
+                const chartInstance = chartRef.current?.chartInstance || chartRef.current?.instance || chartRef.current;
+                if (chartInstance && chartInstance.toBase64Image) {
+                  const link = document.createElement('a');
+                  link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+                  link.download = `${selectedChemical}-monthly-trend.jpg`;
+                  link.click();
+                } else {
+                  alert('Chart image download not supported in this browser.');
+                }
+              }}
+            >
+              Download
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+          </svg>
+            </button>
+            <div className="mt-4 px-2 text-gray-700 text-sm text-left">
               {selectedChemical === 'chlorophyll' ? (
                 <>
                   <b>What is measured?</b> Chlorophyll‑a is a marker for algal biomass and blooms. High values indicate nutrient enrichment (eutrophication) and reduced water clarity.<br/>

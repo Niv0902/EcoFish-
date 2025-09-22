@@ -104,9 +104,10 @@ export default function ChlorophyllVsNitrateScatter() {
   const [metalFields, setMetalFields] = useState([]);
   const [metalX, setMetalX] = useState('');
   const [metalY, setMetalY] = useState('');
-  // ...existing code...
   const [loading, setLoading] = useState(true);
   const [activeChart, setActiveChart] = useState('chemicals');
+  const chemChartRef = React.useRef(null);
+  const metalChartRef = React.useRef(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -169,21 +170,29 @@ export default function ChlorophyllVsNitrateScatter() {
   const chemCorr = useMemo(() => getCorrelation(chemPoints, chemX, chemY), [chemPoints, chemX, chemY]);
   const metalCorr = useMemo(() => getCorrelation(metalPoints, metalX, metalY), [metalPoints, metalX, metalY]);
 
-  function renderChart(title, fields, xField, setXField, yField, setYField, points, corr, chartType, setChartType) {
-    let dataset = {
-      label: `${xField} vs ${yField}`,
-      data: points,
-      backgroundColor: 'rgba(59,130,246,0.7)',
-    };
+  // Add renderChart function before return
+  function renderChart(title, fields, xField, setXField, yField, setYField, points, corr, chartRef) {
     const chartData = {
-      datasets: [dataset],
+      datasets: [
+        {
+          label: title,
+          data: points,
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          pointRadius: 4,
+        },
+      ],
     };
-    const chartOptions = {
-      scales: {
-        x: { title: { display: true, text: xField } },
-        y: { title: { display: true, text: yField } },
-      },
-      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+    const handleDownload = () => {
+      if (chartRef && chartRef.current) {
+        const url = chartRef.current.toBase64Image('image/jpeg', 1.0);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${title.replace(/\s+/g, '_')}_Scatter.jpg`;
+        link.click();
+      } else {
+        alert('Chart image download not supported in this browser.');
+      }
     };
     return (
       <div className="p-4 bg-white rounded shadow mb-8 w-full">
@@ -208,6 +217,7 @@ export default function ChlorophyllVsNitrateScatter() {
         </div>
         <div className="mb-4 w-full h-[20rem] sm:h-[24rem] md:h-[28rem]">
           <Scatter
+            ref={chartRef}
             data={chartData}
             options={{
               responsive: true,
@@ -247,6 +257,18 @@ export default function ChlorophyllVsNitrateScatter() {
               },
             }}
           />
+          <div className="flex justify-start mt-4 pl-4">
+            <button
+              className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium"
+              onClick={handleDownload}
+            >
+              Download
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+              </svg>
+            </button>
+            <div className="mb-6"></div>
+          </div>
         </div>
         <div className="text-xs sm:text-sm md:text-base mb-2 text-center break-words">
           {corr !== null ? (
@@ -264,7 +286,7 @@ export default function ChlorophyllVsNitrateScatter() {
             </div>
           )}
         </div>
-  <div className="text-[10px] sm:text-xs md:text-sm text-gray-600 text-left break-words">
+        <div className="text-[10px] sm:text-xs md:text-sm text-gray-600 text-left break-words">
           <b>Correlation assumptions:</b> <br />
           - Both variables are continuous and approximately normally distributed.<br />
           - Relationship is linear.<br />
@@ -278,7 +300,7 @@ export default function ChlorophyllVsNitrateScatter() {
   return (
     <div className="w-full px-2 sm:px-4 md:px-6">
       {loading ? (
-        <div className="p-4 text-center text-sm sm:text-base">Loading data from Firebase...</div>
+        <div className="p-4 text-center text-sm sm:text-base">Loading data...</div>
       ) : (
         <>
           <div className="mb-6 flex flex-col sm:flex-row gap-2 items-center justify-center">
@@ -288,8 +310,8 @@ export default function ChlorophyllVsNitrateScatter() {
               <option value="metals">Heavy Metals</option>
             </select>
           </div>
-          {activeChart === 'chemicals' && renderChart('Chemicals Correlation', chemFields, chemX, setChemX, chemY, setChemY, chemPoints, chemCorr)}
-          {activeChart === 'metals' && renderChart('Heavy Metals Correlation', metalFields, metalX, setMetalX, metalY, setMetalY, metalPoints, metalCorr)}
+          {activeChart === 'chemicals' && renderChart('Chemicals Correlation', chemFields, chemX, setChemX, chemY, setChemY, chemPoints, chemCorr, chemChartRef)}
+          {activeChart === 'metals' && renderChart('Heavy Metals Correlation', metalFields, metalX, setMetalX, metalY, setMetalY, metalPoints, metalCorr, metalChartRef)}
         </>
       )}
     </div>

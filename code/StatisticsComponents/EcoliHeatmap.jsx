@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 
 const EcoliHeatmap = ({ chartData }) => {
   const [beachSearchQuery, setBeachSearchQuery] = useState('');
+  const heatmapRef = useRef(null);
 
   // Filter beaches based on search query
   const filteredBeaches = chartData?.beaches
@@ -59,12 +61,14 @@ const EcoliHeatmap = ({ chartData }) => {
                 </div>
               </div>
             ) : (
-              <div className="h-full p-4 overflow-auto">
+              <div className="p-4">
                 <div
+                  ref={heatmapRef}
                   className="grid gap-4 w-full auto-rows-max"
                   style={{
                     gridTemplateColumns: `repeat(auto-fit, minmax(120px, 1fr))`,
                     maxWidth: '100%',
+                    height: 'auto',
                   }}
                 >
                   {filteredBeaches.map((beach, index) => {
@@ -95,18 +99,20 @@ const EcoliHeatmap = ({ chartData }) => {
                     return (
                       <div
                         key={index}
-                        className="rounded-lg p-3 border border-gray-200 cursor-pointer shadow-sm flex flex-col justify-center items-center min-h-[80px] aspect-square transition-all duration-500 hover:scale-110 hover:shadow-lg animate-heatmap-pop"
-                        style={{ backgroundColor, animationDelay: `${index * 40}ms` }}
+                        className="rounded-lg p-3 cursor-pointer flex flex-col justify-center items-center min-h-[80px] aspect-square transition-all duration-500 hover:scale-110"
+                        style={{
+                          backgroundColor,
+                          border: '1px solid rgb(229,231,235)', // gray-200
+                          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', // shadow-sm
+                        }}
                         title={`${beach.beach}: ${beach.average.toFixed(0)} CFU/100mL - ${riskLevel}`}
                       >
                         <div className="text-center w-full h-full flex flex-col justify-center overflow-hidden">
                           <div
-                            className="text-xs font-medium mb-1 leading-tight truncate px-1"
-                            style={{ color: textColor }}
+                            className="text-xs font-medium mb-1 leading-tight px-1"
+                            style={{ color: textColor, whiteSpace: 'normal', wordBreak: 'break-word' }}
                           >
-                            {beach.beach.length > 8
-                              ? beach.beach.slice(0, 8) + '...'
-                              : beach.beach}
+                            {beach.beach}
                           </div>
                           <div className="text-sm font-bold mb-1" style={{ color: textColor }}>
                             {beach.average.toFixed(0)}
@@ -126,15 +132,15 @@ const EcoliHeatmap = ({ chartData }) => {
           <div className="mt-4 px-4 border-t pt-4 flex-shrink-0">
             <div className="flex items-center justify-center space-x-6 mb-2">
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 rounded bg-green-500"></div>
+                <div className="w-4 h-4 rounded" style={{backgroundColor: 'rgb(34,197,94)'}}></div>
                 <span className="text-sm text-gray-600">Low Risk (Safe)</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 rounded bg-yellow-500"></div>
+                <div className="w-4 h-4 rounded" style={{backgroundColor: 'rgb(251,191,36)'}}></div>
                 <span className="text-sm text-gray-600">Medium Risk (Caution)</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 rounded bg-red-500"></div>
+                <div className="w-4 h-4 rounded" style={{backgroundColor: 'rgb(239,68,68)'}}></div>
                 <span className="text-sm text-gray-600">High Risk (Unsafe)</span>
               </div>
             </div>
@@ -142,6 +148,27 @@ const EcoliHeatmap = ({ chartData }) => {
               E.coli levels indicate fecal contamination. Higher values mean greater health risks for swimming.
               {beachSearchQuery && ` | Showing ${filteredBeaches.length} of ${chartData.beaches.length} beaches`}
             </p>
+            <div className="flex justify-start mt-4">
+              <button
+                onClick={async () => {
+                  const html2canvas = (await import('html2canvas')).default;
+                  if (heatmapRef.current) {
+                    html2canvas(heatmapRef.current, { backgroundColor: '#fff' }).then(canvas => {
+                      const link = document.createElement('a');
+                      link.download = 'ecoli-heatmap.jpg';
+                      link.href = canvas.toDataURL('image/jpeg', 0.95);
+                      link.click();
+                    });
+                  }
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium flex items-center"
+              >
+                  Download
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+                </svg>
+              </button>
+            </div>
           </div>
         </>
       ) : (

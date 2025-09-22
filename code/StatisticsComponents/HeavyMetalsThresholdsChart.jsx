@@ -201,6 +201,17 @@ const HeavyMetalsThresholdsChart = () => {
     Al: 'Aluminum (Al): Can be toxic to fish and affect water clarity. Safety threshold: 200 µg/L.'
   };
 
+  const chartRef = React.useRef(null);
+  const handleDownload = () => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image('image/jpeg', 1);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `HeavyMetalsThresholdsChart_${selectedYear}.jpg`;
+      link.click();
+    }
+  };
+
   return (
     <div className="w-full px-2 sm:px-4 md:px-6">
       <div className="mb-4 flex flex-col sm:flex-row gap-2 items-center">
@@ -216,7 +227,18 @@ const HeavyMetalsThresholdsChart = () => {
         </select>
       </div>
       <div className="w-full h-[22rem] sm:h-[26rem] md:h-[30rem]">
-        <Bar data={data} options={options} plugins={[ChartDataLabels]} />
+        <Bar ref={chartRef} data={data} options={options} plugins={[ChartDataLabels]} />
+      </div>
+      <div className="flex justify-start mt-4">
+        <button
+          onClick={handleDownload}
+          className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors"
+        >
+          Download
+                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+          </svg>
+        </button>
       </div>
       <div className="mt-4 text-xs sm:text-sm md:text-base text-gray-600 text-left break-words">
         Bars above the blue line exceed safety thresholds and may pose health risks. Green bars are safe, red bars are unsafe.

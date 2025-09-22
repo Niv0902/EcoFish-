@@ -33,6 +33,18 @@ function extractSamples(chemicals) {
 }
 
 const ChemicalExtremesBar = () => {
+  const chartRef = React.useRef(null);
+  const handleDownload = () => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image('image/jpeg', 1.0);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `ChemicalExtremesBar.jpg`;
+      link.click();
+    } else {
+      alert('Chart image download not supported in this browser.');
+    }
+  };
   const [samples, setSamples] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeChemical, setActiveChemical] = useState('chl'); // 'chl', 'nitrate', 'nitrit'
@@ -120,68 +132,82 @@ const ChemicalExtremesBar = () => {
         </select>
       </div>
       {loading ? (
-        <div className="p-4 text-center text-sm sm:text-base">Loading data from Firebase...</div>
+        <div className="p-4 text-center text-sm sm:text-base">Loading data...</div>
       ) : (
-        <div className="w-full h-[24rem] sm:h-[28rem] md:h-[32rem]">
-          <Bar
-            data={chartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: 'top',
-                  labels: {
-                    font: {
-                      size: 12,
-                      family: 'inherit',
-                      weight: 'bold',
+        <>
+          <div className="w-full h-[24rem] sm:h-[28rem] md:h-[32rem]">
+            <Bar
+              ref={chartRef}
+              data={chartData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                    labels: {
+                      font: {
+                        size: 12,
+                        family: 'inherit',
+                        weight: 'bold',
+                      },
+                      padding: 12,
+                      boxWidth: 16,
+                      color: '#374151',
                     },
-                    padding: 12,
-                    boxWidth: 16,
-                    color: '#374151',
                   },
-                },
-                tooltip: {
-                  bodyFont: { size: 12 },
-                  callbacks: {
-                    label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}`
-                  }
-                },
-                title: {
-                  display: false,
-                },
-              },
-              scales: {
-                x: {
+                  tooltip: {
+                    bodyFont: { size: 12 },
+                    callbacks: {
+                      label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}`
+                    }
+                  },
                   title: {
-                    display: true,
-                    text: 'Year',
-                    font: { size: 13, weight: 'bold' },
-                  },
-                  ticks: {
-                    font: { size: 11 },
-                    maxRotation: 0,
-                    minRotation: 0,
-                    autoSkip: true,
+                    display: false,
                   },
                 },
-                y: {
-                  title: {
-                    display: true,
-                    text: 'Concentration',
-                    font: { size: 13, weight: 'bold' },
+                scales: {
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Year',
+                      font: { size: 13, weight: 'bold' },
+                    },
+                    ticks: {
+                      font: { size: 11 },
+                      maxRotation: 0,
+                      minRotation: 0,
+                      autoSkip: true,
+                    },
                   },
-                  ticks: {
-                    font: { size: 11 },
+                  y: {
+                    title: {
+                      display: true,
+                      text: 'Concentration',
+                      font: { size: 13, weight: 'bold' },
+                    },
+                    ticks: {
+                      font: { size: 11 },
+                    },
                   },
                 },
-              },
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
+          <div className="flex justify-start mt-4">
+            <button
+              className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium"
+              onClick={handleDownload}
+            >
+              Download
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+              </svg>
+            </button>
+          </div>
+        </>
       )}
-      <div className="mt-2 text-xs sm:text-sm md:text-base text-gray-600 text-center break-words w-full">
+      <div className="mt-2 text-xs sm:text-sm md:text-base text-gray-600 text-left break-words w-full">
         <span className="whitespace-pre-line">Shows the highest and lowest measured values for each chemical per year. Helps identify extreme pollution events and clean periods.</span>
       </div>
     </div>

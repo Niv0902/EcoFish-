@@ -254,7 +254,7 @@ export const useEnvironmentalData = () => {
 
     console.log('[chartData] counts', { chlorophyll: chlorophyll.length, nitrate: nitrate.length, beaches: beaches.length, metals: metals.length, yearlyAverages: yearlyAverages.length });
 
-  return { chlorophyll, nitrate, nitrite, beaches, metals, metalList, perDepthMetal, yearlyAverages, ecoliFloods };
+  return { chlorophyll, nitrate, nitrit: nitrite, beaches, metals, metalList, perDepthMetal, yearlyAverages, ecoliFloods };
   }, [chemicalData, ecofloodsData, heavyMetalsData]);
 
   // Safety thresholds for heavy metals (µg/L)

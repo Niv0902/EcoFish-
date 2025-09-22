@@ -100,8 +100,8 @@ const StatisticsDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-bold text-gray-800 mb-2">Chemical Analysis</h3>
-                  <p className="text-4xl font-bold text-green-600">{(chartData.chlorophyll?.length || 0) + (chartData.nitrate?.length || 0) + (chartData.nitrite?.length || 0)}</p>
-                  <p className="text-gray-500 mt-1">{(chartData.chlorophyll?.length || 0)} Chlorophyll + {(chartData.nitrate?.length || 0)} Nitrate + {(chartData.nitrite?.length || 0)} Nitrite samples</p>
+                  <p className="text-4xl font-bold text-green-600">{(chartData.chlorophyll?.length || 0) + (chartData.nitrate?.length || 0) + (chartData.nitrit?.length || 0)}</p>
+                  <p className="text-gray-500 mt-1">{(chartData.chlorophyll?.length || 0)} Chlorophyll + {(chartData.nitrate?.length || 0)} Nitrate + {(chartData.nitrit?.length || 0)} Nitrit samples</p>
                 </div>
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                   <span className="text-3xl">💧</span>

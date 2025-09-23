@@ -1,19 +1,13 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Scatter, Bar, Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  PointElement,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Scatter } from 'react-chartjs-2';
+import { Chart as ChartJS, PointElement, LinearScale, Tooltip, Legend } from 'chart.js';
 import { db } from '../firebase';
 import { ref, get } from 'firebase/database';
+import regression from 'regression';
 
 ChartJS.register(PointElement, LinearScale, Tooltip, Legend);
 
-// Flatten nested measurements from Chemicals_Height and Heavy_Metals
-function flattenMeasurements(obj, source = '') {
+function flattenMeasurements(obj) {
   const samples = [];
   if (!obj || typeof obj !== 'object') return samples;
   Object.entries(obj).forEach(([year, arr]) => {
@@ -21,12 +15,10 @@ function flattenMeasurements(obj, source = '') {
     arr.forEach(monthObj => {
       if (!monthObj || typeof monthObj !== 'object') return;
       Object.entries(monthObj).forEach(([month, arr2]) => {
-        let flood = null;
-        if (monthObj.flood !== undefined) flood = monthObj.flood;
         if (!Array.isArray(arr2)) return;
         arr2.forEach(sample => {
           if (sample && typeof sample === 'object') {
-            samples.push({ ...sample, year, month, source, flood });
+            samples.push({ ...sample, year, month });
           }
         });
       });
@@ -35,51 +27,15 @@ function flattenMeasurements(obj, source = '') {
   return samples;
 }
 
-function flattenFirebaseData(data) {
-  if (!data) return [];
-  const chem = flattenMeasurements(data.Chemicals_Height, 'Chemicals_Height');
-  const metals = [];
-  if (data.Heavy_Metals && typeof data.Heavy_Metals === 'object') {
-    Object.entries(data.Heavy_Metals).forEach(([depth, yearObj]) => {
-      metals.push(...flattenMeasurements(yearObj, `Heavy_Metals_${depth}`));
+function getAllNumericFields(samples) {
+  const fields = new Set();
+  samples.forEach(s => {
+    Object.entries(s).forEach(([k, v]) => {
+      if (typeof v === 'number' && !isNaN(v)) fields.add(k);
     });
-  }
-  // Flatten E.coli floods data
-  const ecoliFloods = [];
-  if (data.Ecolifloods && typeof data.Ecolifloods === 'object') {
-    Object.entries(data.Ecolifloods).forEach(([year, arr]) => {
-      if (!Array.isArray(arr)) return;
-      arr.forEach(monthObj => {
-        if (!monthObj || typeof monthObj !== 'object') return;
-        Object.entries(monthObj).forEach(([month, arr2]) => {
-          if (!Array.isArray(arr2)) return;
-          arr2.forEach(sample => {
-            if (sample && typeof sample === 'object') {
-              ecoliFloods.push({ ...sample, year, month, source: 'Ecolifloods' });
-            }
-          });
-        });
-      });
-    });
-  }
-  return [...chem, ...metals, ...ecoliFloods];
+  });
+  return Array.from(fields);
 }
-
-  function getAllNumericFields(samples, includeStrings = false) {
-    const fields = new Set();
-    samples.forEach(s => {
-      Object.entries(s).forEach(([k, v]) => {
-        if (typeof v === 'number' && !isNaN(v)) fields.add(k);
-        // Optionally include string fields for dropdowns
-        if (includeStrings && typeof v === 'string' && v.length < 30) fields.add(k);
-      });
-      // Always include flood_in_month if present
-      if ('flood_in_month' in s) {
-        fields.add('flood_in_month');
-      }
-    });
-    return Array.from(fields);
-  }
 
 function pearsonCorrelation(x, y) {
   const n = x.length;
@@ -95,224 +51,176 @@ function pearsonCorrelation(x, y) {
   return num / Math.sqrt(denomX * denomY);
 }
 
-export default function ChlorophyllVsNitrateScatter() {
+function mergeTablesForCorrelation(chemSamples, ecoliFloods, chemField, ecoliField) {
+  const merged = [];
+  chemSamples.forEach(chemSample => {
+    if (!chemSample[chemField] || !chemSample.year || !chemSample.month) return;
+    const matchingEcoli = ecoliFloods.find(ecoliSample => 
+      ecoliSample.year === chemSample.year && 
+      ecoliSample.month === chemSample.month &&
+      ecoliSample[ecoliField] != null
+    );
+    if (matchingEcoli) {
+      merged.push({
+        x: chemSample[chemField],
+        y: matchingEcoli[ecoliField],
+        year: chemSample.year,
+        month: chemSample.month
+      });
+    }
+  });
+  return merged;
+}
+
+export default function CorrelationScatter() {
+  const [ecoliFloods, setEcoliFloods] = useState([]);
   const [chemSamples, setChemSamples] = useState([]);
-  const [chemFields, setChemFields] = useState([]);
-  const [chemX, setChemX] = useState('');
-  const [chemY, setChemY] = useState('');
-  const [metalSamples, setMetalSamples] = useState([]);
-  const [metalFields, setMetalFields] = useState([]);
-  const [metalX, setMetalX] = useState('');
-  const [metalY, setMetalY] = useState('');
   const [loading, setLoading] = useState(true);
-  const [activeChart, setActiveChart] = useState('chemicals');
-  const chemChartRef = React.useRef(null);
-  const metalChartRef = React.useRef(null);
 
   useEffect(() => {
     async function fetchData() {
       const snapshot = await get(ref(db, '/'));
       const val = snapshot.val();
-      // Chemicals
-      const chem = flattenMeasurements(val?.Chemicals_Height, 'Chemicals_Height');
-      const chemFieldsArr = getAllNumericFields(chem);
+      const chem = flattenMeasurements(val?.Chemicals_Height);
       setChemSamples(chem);
-      setChemFields(chemFieldsArr);
-      setChemX(chemFieldsArr[0] || '');
-      setChemY(chemFieldsArr[1] || chemFieldsArr[0] || '');
-      // Metals
-      let metals = [];
-      if (val?.Heavy_Metals && typeof val.Heavy_Metals === 'object') {
-        Object.entries(val.Heavy_Metals).forEach(([depth, yearObj]) => {
-          metals.push(...flattenMeasurements(yearObj, `Heavy_Metals_${depth}`));
-        });
-      }
-      const metalFieldsArr = getAllNumericFields(metals);
-      setMetalSamples(metals);
-      setMetalFields(metalFieldsArr);
-      setMetalX(metalFieldsArr[0] || '');
-      setMetalY(metalFieldsArr[1] || metalFieldsArr[0] || '');
-      // ...existing code...
+      const ecoli = flattenMeasurements(val?.Ecolifloods);
+      setEcoliFloods(ecoli);
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  function getPoints(samples, xField, yField, chartTitle) {
-    if (!xField || !yField) return [];
-    // For E.coli Floods chart, always return all valid (Ecoli, flood_in_month) pairs if those fields are selected
-    if (chartTitle === 'E.coli Floods Correlation' && xField === 'Ecoli' && yField === 'flood_in_month') {
-      return samples
-        .filter(s => typeof s.Ecoli === 'number' && typeof s.flood_in_month === 'number')
-        .map(s => ({ x: s.Ecoli, y: s.flood_in_month }));
-    }
-    return samples
-      .map(s => {
-        if (typeof s[xField] === 'number' && typeof s[yField] === 'number') {
-          return { x: s[xField], y: s[yField] };
-        }
-        return null;
-      })
-      .filter(Boolean);
-  }
+  // Always compare chl_ug_l_avg vs Ecoli
+  const mergedPoints = useMemo(() => 
+    mergeTablesForCorrelation(chemSamples, ecoliFloods, 'chl_ug_l_avg', 'Ecoli'), 
+    [chemSamples, ecoliFloods]
+  );
 
-  function getCorrelation(points, xField, yField) {
-    if (points.length < 2) return null;
-    // If same field selected for X and Y, correlation is always 1
-    if (xField === yField) return 1;
-    const x = points.map(p => p.x);
-    const y = points.map(p => p.y);
+  // Calculate regression line for visual correlation
+  const regressionLine = useMemo(() => {
+    if (mergedPoints.length < 2) return null;
+    const data = mergedPoints.map(p => [p.x, p.y]);
+    const result = regression.linear(data);
+    return result.points;
+  }, [mergedPoints]);
+
+  const crossTableCorrelation = useMemo(() => {
+    if (mergedPoints.length < 2) return null;
+    const x = mergedPoints.map(p => p.x);
+    const y = mergedPoints.map(p => p.y);
     return pearsonCorrelation(x, y);
-  }
-
-  const chemPoints = useMemo(() => getPoints(chemSamples, chemX, chemY, 'Chemicals Correlation'), [chemSamples, chemX, chemY]);
-  const metalPoints = useMemo(() => getPoints(metalSamples, metalX, metalY, 'Heavy Metals Correlation'), [metalSamples, metalX, metalY]);
-  const chemCorr = useMemo(() => getCorrelation(chemPoints, chemX, chemY), [chemPoints, chemX, chemY]);
-  const metalCorr = useMemo(() => getCorrelation(metalPoints, metalX, metalY), [metalPoints, metalX, metalY]);
-
-  // Add renderChart function before return
-  function renderChart(title, fields, xField, setXField, yField, setYField, points, corr, chartRef) {
-    const chartData = {
-      datasets: [
-        {
-          label: title,
-          data: points,
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          pointRadius: 4,
-        },
-      ],
-    };
-    const handleDownload = () => {
-      if (chartRef && chartRef.current) {
-        const url = chartRef.current.toBase64Image('image/jpeg', 1.0);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${title.replace(/\s+/g, '_')}_Scatter.jpg`;
-        link.click();
-      } else {
-        alert('Chart image download not supported in this browser.');
-      }
-    };
-    return (
-      <div className="p-4 bg-white rounded shadow mb-8 w-full">
-        <h2 className="text-base sm:text-lg md:text-xl font-bold mb-4 text-center break-words">{title}</h2>
-        <div className="flex flex-col sm:flex-row gap-4 mb-4 justify-center items-center">
-          <div className="w-full sm:w-auto">
-            <label className="block text-xs sm:text-sm font-medium mb-1">X Axis</label>
-            <select className="border rounded px-2 py-1 text-xs sm:text-sm w-full sm:w-auto" value={xField} onChange={e => setXField(e.target.value)}>
-              {fields.map(f => (
-                <option key={f} value={f}>{f}</option>
-              ))}
-            </select>
-          </div>
-          <div className="w-full sm:w-auto">
-            <label className="block text-xs sm:text-sm font-medium mb-1">Y Axis</label>
-            <select className="border rounded px-2 py-1 text-xs sm:text-sm w-full sm:w-auto" value={yField} onChange={e => setYField(e.target.value)}>
-              {fields.map(f => (
-                <option key={f} value={f}>{f}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="mb-4 w-full h-[20rem] sm:h-[24rem] md:h-[28rem]">
-          <Scatter
-            ref={chartRef}
-            data={chartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  display: false,
-                },
-                tooltip: {
-                  bodyFont: { size: 12 },
-                },
-              },
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: xField,
-                    font: { size: 13, weight: 'bold' },
-                  },
-                  ticks: {
-                    font: { size: 11 },
-                    maxRotation: 0,
-                    minRotation: 0,
-                    autoSkip: true,
-                  },
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: yField,
-                    font: { size: 13, weight: 'bold' },
-                  },
-                  ticks: {
-                    font: { size: 11 },
-                  },
-                },
-              },
-            }}
-          />
-          <div className="flex justify-start mt-4 pl-4">
-            <button
-              className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium"
-              onClick={handleDownload}
-            >
-              Download
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
-              </svg>
-            </button>
-            <div className="mb-6"></div>
-          </div>
-        </div>
-        <div className="text-xs sm:text-sm md:text-base mb-2 text-center break-words">
-          {corr !== null ? (
-            <span>Pearson correlation coefficient: <b>{corr.toFixed(3)}</b></span>
-          ) : (
-            <span>Not enough data to calculate correlation.</span>
-          )}
-          {corr !== null && (
-            <div className="mt-1 text-gray-700">
-              {corr > 0.7 && 'Strong positive correlation: as X increases, Y tends to increase.'}
-              {corr < -0.7 && 'Strong negative correlation: as X increases, Y tends to decrease.'}
-              {corr >= 0.3 && corr <= 0.7 && 'Moderate positive correlation.'}
-              {corr <= -0.3 && corr >= -0.7 && 'Moderate negative correlation.'}
-              {corr > -0.3 && corr < 0.3 && 'Weak or no correlation.'}
-            </div>
-          )}
-        </div>
-        <div className="text-[10px] sm:text-xs md:text-sm text-gray-600 text-left break-words">
-          <b>Correlation assumptions:</b> <br />
-          - Both variables are continuous and approximately normally distributed.<br />
-          - Relationship is linear.<br />
-          - No significant outliers.<br />
-          - Homoscedasticity (equal variance across values).<br />
-        </div>
-      </div>
-    );
-  }
+  }, [mergedPoints]);
 
   return (
-    <div className="w-full px-2 sm:px-4 md:px-6">
+    <div className="w-full max-w-6xl mx-auto p-4">
       {loading ? (
-        <div className="p-4 text-center text-sm sm:text-base">Loading data...</div>
+        <div className="p-4 text-center">Loading data...</div>
       ) : (
-        <>
-          <div className="mb-6 flex flex-col sm:flex-row gap-2 items-center justify-center">
-            <label className="block text-xs sm:text-sm font-medium mb-2 sm:mb-0">Select Correlation Chart</label>
-            <select className="border rounded px-2 py-1 text-xs sm:text-sm w-full sm:w-auto" value={activeChart} onChange={e => setActiveChart(e.target.value)}>
-              <option value="chemicals">Chemicals</option>
-              <option value="metals">Heavy Metals</option>
-            </select>
+        <div className="space-y-4">
+          {/* Wide Chart Container */}
+          <div className="bg-white border rounded-lg p-4">
+            <h3 className="text-lg font-bold text-center mb-4">
+              Correlation: Chlorophyll-a (chl_ug_l_avg) vs E.coli
+            </h3>
+            <div className="w-full" style={{ height: '400px' }}>
+              <Scatter
+                data={{
+                  datasets: [
+                    {
+                      label: 'Chlorophyll-a vs E.coli',
+                      data: mergedPoints,
+                      backgroundColor: 'rgba(54,162,235,0.6)',
+                      borderColor: 'rgba(54,162,235,1)',
+                      pointRadius: 5,
+                      pointHoverRadius: 7,
+                    },
+                    ...(regressionLine ? [{
+                      label: 'Regression Line',
+                      data: regressionLine.map(([x, y]) => ({ x, y })),
+                      type: 'line',
+                      borderColor: 'rgba(255,99,132,0.8)',
+                      borderWidth: 2,
+                      pointRadius: 0,
+                      fill: false,
+                      showLine: true,
+                    }] : [])
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { 
+                      display: true,
+                      position: 'top',
+                    },
+                    tooltip: { 
+                      callbacks: {
+                        label: function(context) {
+                          if (context.datasetIndex === 0) {
+                            const point = mergedPoints[context.dataIndex];
+                            return `Chlorophyll-a: ${context.parsed.x.toFixed(2)}, E.coli: ${context.parsed.y.toFixed(2)} (${point?.year}/${point?.month})`;
+                          }
+                          return context.dataset.label;
+                        }
+                      }
+                    },
+                  },
+                  scales: {
+                    x: {
+                      title: { 
+                        display: true, 
+                        text: 'Chlorophyll-a (chl_ug_l_avg)', 
+                        font: { size: 14, weight: 'bold' } 
+                      },
+                      grid: { color: 'rgba(0,0,0,0.1)' },
+                    },
+                    y: {
+                      title: { 
+                        display: true, 
+                        text: 'E.coli', 
+                        font: { size: 14, weight: 'bold' } 
+                      },
+                      grid: { color: 'rgba(0,0,0,0.1)' },
+                    },
+                  },
+                }}
+              />
+            </div>
+            {/* Correlation Info */}
+            <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+              <div className="text-center">
+                <div className="text-lg font-bold text-blue-800">
+                  {crossTableCorrelation !== null ? (
+                    `Pearson correlation coefficient: ${crossTableCorrelation.toFixed(3)}`
+                  ) : (
+                    'Not enough data to calculate correlation.'
+                  )}
+                </div>
+                  {crossTableCorrelation !== null && (
+                    <div className="mt-1 text-xs text-blue-700 text-center">
+                      A low correlation coefficient between chlorophyll and E.coli can actually indicate a positive or normal situation regarding pollution.
+                    </div>
+                  )}
+                {crossTableCorrelation !== null && (
+                  <div className="mt-2 text-sm text-gray-700">
+                    <span className={`font-semibold ${
+                      Math.abs(crossTableCorrelation) > 0.7 ? 'text-red-600' :
+                      Math.abs(crossTableCorrelation) > 0.3 ? 'text-orange-600' : 'text-gray-600'
+                    }`}>
+                      {Math.abs(crossTableCorrelation) > 0.7 && 'Strong correlation'}
+                      {Math.abs(crossTableCorrelation) <= 0.7 && Math.abs(crossTableCorrelation) > 0.3 && 'Moderate correlation'}
+                      {Math.abs(crossTableCorrelation) <= 0.3 && 'Weak correlation'}
+                    </span>
+                    {crossTableCorrelation > 0 ? ' (positive)' : ' (negative)'}
+                    <br />
+                    <span className="text-xs">Based on {mergedPoints.length} matched data pairs</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-          {activeChart === 'chemicals' && renderChart('Chemicals Correlation', chemFields, chemX, setChemX, chemY, setChemY, chemPoints, chemCorr, chemChartRef)}
-          {activeChart === 'metals' && renderChart('Heavy Metals Correlation', metalFields, metalX, setMetalX, metalY, setMetalY, metalPoints, metalCorr, metalChartRef)}
-        </>
+        </div>
       )}
     </div>
   );

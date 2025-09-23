@@ -24,10 +24,10 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
       color = '#10b981';
     } else if (selectedChemical === 'nitrate') {
       raw = chartData.nitrate;
-      label = 'Nitrate';
-      color = '#3b82f6';
+      label = 'Nitrate';   color = '#3b82f6';
     } else if (selectedChemical === 'nitrite') {
-      raw = chartData.nitrite || [];
+      // Use chartData.nitrite, which is already [{date, value}] format
+      raw = (chartData.nitrite || []).map(d => ({ date: d.date, value: d.value ?? d.avg_nitrit }));
       label = 'Nitrite';
       color = '#fbbf24';
     }

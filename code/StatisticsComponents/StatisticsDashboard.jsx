@@ -145,7 +145,7 @@ const StatisticsDashboard = () => {
             { id: 'metals', label: 'Heavy Metals by Depth' },
             { id: 'metalsThresholds', label: 'Heavy Metals Thresholds' },
             { id: 'yearly', label: 'Yearly Trends' },
-            { id: 'scatter', label: 'Correlation Scatter' },
+            { id: 'scatter', label: 'Ch vs E.coli' },
             { id: 'extremes', label: 'Chemical Extremes' }
           ].map((tab) => (
 

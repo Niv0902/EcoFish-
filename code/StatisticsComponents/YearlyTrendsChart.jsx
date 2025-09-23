@@ -44,7 +44,6 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
     return <p className="text-center text-gray-500">No yearly data available</p>;
   }
 
-  // Filter for years 2010–2020 (ensure numeric)
   // Separate filters for chemicals and heavy metals
   const filteredChemicals = chartData.yearlyAverages
     .map((d) => ({

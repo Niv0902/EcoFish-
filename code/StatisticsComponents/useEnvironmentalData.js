@@ -104,17 +104,17 @@ export const useEnvironmentalData = () => {
   // Arrays for creative E.coli graphs
   const ecoliFloods = [];
   const ecoliWeatherData = [];
+  // Flat array for KineretHeightChemScatter
+  const chemicalHeightArr = [];
 
     // ---- Chemicals_Height traversal ----
     Object.keys(chemicalData || {}).forEach(year => {
       const monthsArr = chemicalData[year];
       if (!Array.isArray(monthsArr)) return;
-      
       // Initialize yearly data for this year
       if (!yearlyData[year]) {
         yearlyData[year] = { chlorophyll: [], nitrate: [], ecoli: [] };
       }
-      
       monthsArr.forEach((monthObj, monthIndex) => {
         if (!isObject(monthObj)) return; // skip nulls
         Object.keys(monthObj).forEach(dayKey => {
@@ -124,6 +124,14 @@ export const useEnvironmentalData = () => {
             if (!isObject(sample)) return;
             const dateStr = sample.date || `${year}-${String(monthIndex+1).padStart(2,'0')}-${String(dayKey).padStart(2,'0')}`;
             const date = new Date(dateStr);
+            // For scatter chart
+            chemicalHeightArr.push({
+              kineret_height: sample.kineret_height ?? null,
+              avg_nitrate: sample.avg_nitrate ?? null,
+              avg_nitrit: sample.avg_nitrit ?? null,
+              chl_ug_l_avg: sample.chl_ug_l_avg ?? null,
+              date: dateStr
+            });
             if (sample.chl_ug_l_avg != null && !isNaN(sample.chl_ug_l_avg)) {
               const value = Number(sample.chl_ug_l_avg);
               chlorophyll.push({ date, value, year });
@@ -300,7 +308,7 @@ export const useEnvironmentalData = () => {
     console.log('[chartData] counts', { chlorophyll: chlorophyll.length, nitrate: nitrate.length, beaches: beaches.length, metals: metals.length, yearlyAverages: yearlyAverages.length });
 
   // For ChemicalChart compatibility, provide nitrite under both 'nitrit' and 'nitrite' keys
-  return { chlorophyll, nitrate, nitrit: nitrite, nitrite, beaches, metals, metalList, perDepthMetal, yearlyAverages, ecoliFloods };
+  return { chlorophyll, nitrate, nitrit: nitrite, nitrite, beaches, metals, metalList, perDepthMetal, yearlyAverages, ecoliFloods, chemicalHeightArr };
   }, [chemicalData, ecofloodsData, heavyMetalsData]);
 
   // Safety thresholds for heavy metals (µg/L)

@@ -23,6 +23,7 @@ import { useEnvironmentalData } from './useEnvironmentalData.js';
 import EcoliBeachLineChart from './EcoliBeachLineChart.jsx';
 import HeavyMetalsThresholdsChart from './HeavyMetalsThresholdsChart.jsx';
 import EcoliFloodYearChart from './EcoliFloodYearChart.jsx';
+import KineretHeightChemScatter from './KineretHeightChemScatter.jsx';
 
 // Register Chart.js components
 ChartJS.register(
@@ -146,7 +147,8 @@ const StatisticsDashboard = () => {
             { id: 'metalsThresholds', label: 'Heavy Metals Thresholds' },
             { id: 'yearly', label: ' Pollutants Yearly Trends' },
             { id: 'scatter', label: 'Ch vs E.coli' },
-            { id: 'extremes', label: 'Chemical Extremes' }
+            { id: 'extremes', label: 'Chemical Extremes' },
+            { id: 'heightChem', label: 'Height vs Chemicals' }
           ].map((tab) => (
 
             <button
@@ -190,6 +192,10 @@ const StatisticsDashboard = () => {
 
           {activeChart === 'extremes' && (
             <ChemicalExtremesBar chartData={chartData} />
+          )}
+
+          {activeChart === 'heightChem' && (
+            <KineretHeightChemScatter dataArr={chartData.chemicalHeightArr || []} />
           )}
         </div>
 

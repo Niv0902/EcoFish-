@@ -33,13 +33,26 @@ const EcoliBeachLineChart = ({ beaches }) => {
   // Sort beaches by average E.coli descending
   const sorted = [...beaches].sort((a, b) => b.average - a.average);
   const labels = sorted.map(b => {
-    // Add visual indicators for stations
     if (b.beach && b.beach.toLowerCase().includes('station')) {
-      return `🔴 ${b.beach}`; // Add red dot emoji
+      return `🔴 ${b.beach}`;
     }
     return b.beach;
   });
   const dataPoints = sorted.map(b => b.average);
+
+  // Color logic from heatmap
+  const maxEcoli = Math.max(...sorted.map(b => b.average));
+  const minEcoli = Math.min(...sorted.map(b => b.average));
+  const beachColors = sorted.map(beach => {
+    const normalizedValue = maxEcoli === minEcoli ? 0 : (beach.average - minEcoli) / (maxEcoli - minEcoli);
+    if (normalizedValue < 0.33) {
+      return `rgba(34, 197, 94, 1)`; // Green
+    } else if (normalizedValue < 0.66) {
+      return `rgba(251, 191, 36, 1)`; // Yellow
+    } else {
+      return `rgba(239, 68, 68, 1)`; // Red
+    }
+  });
 
   const data = {
     labels,
@@ -51,7 +64,8 @@ const EcoliBeachLineChart = ({ beaches }) => {
         backgroundColor: 'rgba(239,68,68,0.2)',
         fill: true,
         tension: 0.5,
-        pointRadius: 0,
+        pointRadius: 6,
+        pointBackgroundColor: beachColors,
       }
     ]
   };
@@ -117,7 +131,9 @@ const EcoliBeachLineChart = ({ beaches }) => {
 
   return (
     <div className="w-full">
-      <Line key={chartKey} ref={chartRef} data={data} options={options} />
+      <div style={{height: '480px'}}>
+        <Line key={chartKey} ref={chartRef} data={data} options={options} />
+      </div>
       <div className="flex justify-start mt-4">
         <button
           onClick={handleDownload}
@@ -128,6 +144,16 @@ const EcoliBeachLineChart = ({ beaches }) => {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
           </svg>
         </button>
+      </div>
+      {/* English explanation for legend */}
+      <div className="text-center text-sm text-gray-700 mt-6 mb-2">
+        <b>Legend explanation:</b> Each dot in the chart represents a beach, and its color indicates the E.coli risk level:
+        <br/>
+        Green = Low risk (safe water)
+        <br/>
+        Yellow = Medium risk (caution)
+        <br/>
+        Red = High risk (contaminated water)
       </div>
       <div className="mt-4 text-sm text-gray-600 text-left">
         This line chart shows average E.coli levels for each beach, with colored area for visual emphasis.

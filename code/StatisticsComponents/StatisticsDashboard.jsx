@@ -15,7 +15,6 @@ import {
 
 // Import components
 import ChemicalChart from './ChemicalChart.jsx';
-import EcoliHeatmap from './EcoliHeatmap.jsx';
 import HeavyMetalsChart from './HeavyMetalsChart.jsx';
 import YearlyTrendsChart from './YearlyTrendsChart.jsx';
 import CorrelationScatter from './CorrelationScatter.jsx';
@@ -141,7 +140,6 @@ const StatisticsDashboard = () => {
         <div className="mb-6 flex flex-wrap gap-3 justify-center">
           {[ 
             { id: 'chemicals', label: 'Chemicals' },
-            { id: 'ecoli', label: 'E.coli Heatmap' },
             { id: 'ecoliBeachLine', label: 'E.coli Beach Line' },
             { id: 'ecoliFloodYear', label: 'E.coli vs Floods by Year' },
             { id: 'metals', label: 'Heavy Metals by Depth' },
@@ -172,10 +170,6 @@ const StatisticsDashboard = () => {
 
           {activeChart === 'yearly' && (
             <YearlyTrendsChart chartData={chartData} hasAnimated={hasAnimated} />
-          )}
-
-          {activeChart === 'ecoli' && (
-            <EcoliHeatmap chartData={chartData} />
           )}
 
           {activeChart === 'ecoliBeachLine' && (

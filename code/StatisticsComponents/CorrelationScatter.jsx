@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, PointElement, LinearScale, Tooltip, Legend } from 'chart.js';
 import { db } from '../firebase';
@@ -25,16 +25,6 @@ function flattenMeasurements(obj) {
     });
   });
   return samples;
-}
-
-function getAllNumericFields(samples) {
-  const fields = new Set();
-  samples.forEach(s => {
-    Object.entries(s).forEach(([k, v]) => {
-      if (typeof v === 'number' && !isNaN(v)) fields.add(k);
-    });
-  });
-  return Array.from(fields);
 }
 
 function pearsonCorrelation(x, y) {
@@ -76,6 +66,7 @@ export default function CorrelationScatter() {
   const [ecoliFloods, setEcoliFloods] = useState([]);
   const [chemSamples, setChemSamples] = useState([]);
   const [loading, setLoading] = useState(true);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -90,13 +81,11 @@ export default function CorrelationScatter() {
     fetchData();
   }, []);
 
-  // Always compare chl_ug_l_avg vs Ecoli
   const mergedPoints = useMemo(() => 
     mergeTablesForCorrelation(chemSamples, ecoliFloods, 'chl_ug_l_avg', 'Ecoli'), 
     [chemSamples, ecoliFloods]
   );
 
-  // Calculate regression line for visual correlation
   const regressionLine = useMemo(() => {
     if (mergedPoints.length < 2) return null;
     const data = mergedPoints.map(p => [p.x, p.y]);
@@ -111,19 +100,46 @@ export default function CorrelationScatter() {
     return pearsonCorrelation(x, y);
   }, [mergedPoints]);
 
+  const handleDownload = () => {
+    if (chartRef.current && chartRef.current.canvas) {
+      const canvas = chartRef.current.canvas;
+      const url = canvas.toDataURL('image/jpeg', 1.0);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'chlorophyll-ecoli-correlation.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert('Chart download not available');
+    }
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
       {loading ? (
         <div className="p-4 text-center">Loading data...</div>
       ) : (
         <div className="space-y-4">
-          {/* Wide Chart Container */}
           <div className="bg-white border rounded-lg p-4">
-            <h3 className="text-lg font-bold text-center mb-4">
-              Correlation: Chlorophyll-a (chl_ug_l_avg) vs E.coli
-            </h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">
+                Correlation: Chlorophyll-a vs E.coli
+              </h3>
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+                disabled={mergedPoints.length === 0}
+              >
+                Download
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+                </svg>
+              </button>
+            </div>
             <div className="w-full" style={{ height: '400px' }}>
               <Scatter
+                ref={chartRef}
                 data={{
                   datasets: [
                     {
@@ -187,7 +203,6 @@ export default function CorrelationScatter() {
                 }}
               />
             </div>
-            {/* Correlation Info */}
             <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
               <div className="text-center">
                 <div className="text-lg font-bold text-blue-800">
@@ -197,11 +212,11 @@ export default function CorrelationScatter() {
                     'Not enough data to calculate correlation.'
                   )}
                 </div>
-                  {crossTableCorrelation !== null && (
-                    <div className="mt-1 text-xs text-blue-700 text-center">
-                      A low correlation coefficient between chlorophyll and E.coli can actually indicate a positive or normal situation regarding pollution.
-                    </div>
-                  )}
+                {crossTableCorrelation !== null && (
+                  <div className="mt-1 text-xs text-blue-700 text-center">
+                    A low correlation coefficient between chlorophyll and E.coli can actually indicate a positive or normal situation regarding pollution.
+                  </div>
+                )}
                 {crossTableCorrelation !== null && (
                   <div className="mt-2 text-sm text-gray-700">
                     <span className={`font-semibold ${

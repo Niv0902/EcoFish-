@@ -109,15 +109,6 @@ const Homepage = () => {
           </div>
         );
 
-      case 'download':
-        return (
-          <div className="text-center animate-fade-in">
-            <h2 className="text-3xl font-bold text-blue-700 mb-4">Download Data</h2>
-            <p className="text-gray-600">Export or download environmental datasets for Kinneret.</p>
-            {/* Add your download functionality or links here */}
-          </div>
-        );
-
       default:
         return <div>Select a tab</div>;
     }

@@ -3,7 +3,7 @@
 import { Bar } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useEffect, useState } from 'react';
-import { db } from '../firebase';
+import { db } from '../services/firebase';
 import { ref, onValue } from 'firebase/database';
 
 // Safety thresholds for each metal

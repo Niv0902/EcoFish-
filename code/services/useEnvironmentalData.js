@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { db } from '../firebase.js';
+import { db } from './firebase.js';
 import { ref as dbRef, onValue, off } from 'firebase/database';
 
 export const useEnvironmentalData = () => {

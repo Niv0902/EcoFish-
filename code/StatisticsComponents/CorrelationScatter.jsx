@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, PointElement, LinearScale, Tooltip, Legend } from 'chart.js';
-import { db } from '../firebase';
+import { db } from '../services/firebase';
 import { ref, get } from 'firebase/database';
 import regression from 'regression';
 

@@ -9,7 +9,7 @@ export async function getHeavyMetalsThresholds() {
   }
 }
 // AI Service for generating pollution factor explanations
-import { db } from '../firebase.js';
+import { db } from './firebase.js';
 import { ref, get } from 'firebase/database';
 
 class AIService {

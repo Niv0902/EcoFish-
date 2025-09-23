@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { db } from '../firebase';
+import { db } from '../services/firebase';
 import { ref, get } from 'firebase/database';
 
 function extractSamples(chemicals) {

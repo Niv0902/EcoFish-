@@ -19,7 +19,7 @@ import HeavyMetalsChart from './HeavyMetalsChart.jsx';
 import YearlyTrendsChart from './YearlyTrendsChart.jsx';
 import CorrelationScatter from './CorrelationScatter.jsx';
 import ChemicalExtremesBar from './ChemicalExtremesBar.jsx';
-import { useEnvironmentalData } from './useEnvironmentalData.js';
+import { useEnvironmentalData } from '../services/useEnvironmentalData.js';
 import EcoliBeachLineChart from './EcoliBeachLineChart.jsx';
 import HeavyMetalsThresholdsChart from './HeavyMetalsThresholdsChart.jsx';
 import EcoliFloodYearChart from './EcoliFloodYearChart.jsx';

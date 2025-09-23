@@ -144,7 +144,7 @@ const StatisticsDashboard = () => {
             { id: 'ecoliFloodYear', label: 'E.coli vs Floods by Year' },
             { id: 'metals', label: 'Heavy Metals by Depth' },
             { id: 'metalsThresholds', label: 'Heavy Metals Thresholds' },
-            { id: 'yearly', label: 'Yearly Trends' },
+            { id: 'yearly', label: ' Pollutants Yearly Trends' },
             { id: 'scatter', label: 'Ch vs E.coli' },
             { id: 'extremes', label: 'Chemical Extremes' }
           ].map((tab) => (

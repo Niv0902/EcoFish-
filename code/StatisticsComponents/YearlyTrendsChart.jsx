@@ -1,381 +1,577 @@
-import React from 'react';
-import { Line } from 'react-chartjs-2';
+import React, { useState } from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
 
-const YearlyTrendsChart = ({ chartData, hasAnimated }) => {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+const BeautifulYearlyTrendsChart = ({ chartData }) => {
+  const [showMetals, setShowMetals] = useState(false);
   const chartRef = React.useRef(null);
+
   const handleDownload = () => {
-    if (chartRef.current) {
-      const url = chartRef.current.toBase64Image('image/jpeg', 1.0);
-      const link = document.createElement('a');
+    const chart = chartRef.current;
+    if (chart && typeof chart.toBase64Image === "function") {
+      const url = chart.toBase64Image("image/jpeg", 1.0);
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `YearlyTrendsChart.jpg`;
+      link.download = "YearlyTrendsChart.jpg";
       link.click();
     } else {
-      alert('Chart image download not supported in this browser.');
+      alert("Chart image download not supported in this browser.");
     }
   };
+
+  if (!chartData?.yearlyAverages?.length) {
+    return <p className="text-center text-gray-500">No yearly data available</p>;
+  }
+
+  // Filter for years 2010–2020 (ensure numeric)
+  // Separate filters for chemicals and heavy metals
+  const filteredChemicals = chartData.yearlyAverages
+    .map((d) => ({
+      year: Number(d.year),
+      chlorophyllAvg: d.chlorophyllAvg ?? null,
+      nitrateAvg: d.nitrateAvg ?? null,
+      avg_nitrit: d.avg_nitrit ?? null,
+    }))
+    .filter((d) => d.year >= 2010 && d.year <= 2020);
+
+  const filteredMetals = chartData.yearlyAverages
+    .map((d) => ({
+      year: Number(d.year),
+      avg_Cd: d.avg_Cd ?? null,
+      avg_Pb: d.avg_Pb ?? null,
+      avg_Hg: d.avg_Hg ?? null,
+      avg_Cu: d.avg_Cu ?? null,
+      avg_Zn: d.avg_Zn ?? null,
+      avg_Fe: d.avg_Fe ?? null,
+      avg_Mn: d.avg_Mn ?? null,
+      avg_Al: d.avg_Al ?? null,
+    }))
+    .filter((d) => d.year >= 2020 && d.year <= 2023);
+
+  // Use correct filtered data based on toggle
+  const filtered = showMetals ? filteredMetals : filteredChemicals;
+
+  if (!filtered.length) {
+    return <p className="text-center text-gray-500">No data in {showMetals ? '2020–2023' : '2010–2020'}</p>;
+  }
+
+  const years = filtered.map((d) => d.year);
+  const chlorophyllData = showMetals ? [] : filtered.map((d) => d.chlorophyllAvg);
+  const nitrateData = showMetals ? [] : filtered.map((d) => d.nitrateAvg);
+  const nitritData = showMetals ? [] : filtered.map((d) => d.avg_nitrit);
+  // Heavy metals
+  const metalsList = [
+    { key: "avg_Cd", label: "Cadmium (Cd)", color: "rgba(220,38,127,1)" },
+    { key: "avg_Pb", label: "Lead (Pb)", color: "rgba(239,68,68,1)" },
+    { key: "avg_Hg", label: "Mercury (Hg)", color: "rgba(251,191,36,1)" },
+    { key: "avg_Cu", label: "Copper (Cu)", color: "rgba(59,130,246,1)" },
+    { key: "avg_Zn", label: "Zinc (Zn)", color: "rgba(34,197,94,1)" },
+    { key: "avg_Fe", label: "Iron (Fe)", color: "rgba(16,185,129,1)" },
+    { key: "avg_Mn", label: "Manganese (Mn)", color: "rgba(168,85,247,1)" },
+    { key: "avg_Al", label: "Aluminum (Al)", color: "rgba(100,116,139,1)" },
+  ];
+  const metalsData = metalsList.map(m => ({
+    ...m,
+    data: filtered.map(d => d[m.key] ?? null)
+  }));
+
+  // Prepare ranges safely
+  const num = (x) => (typeof x === "number" && isFinite(x) ? x : null);
+  const allChl = chlorophyllData.map(num).filter((v) => v !== null);
+  const allNO3 = nitrateData.map(num).filter((v) => v !== null);
+  const allNO2 = nitritData.map(num).filter((v) => v !== null);
+
+  const padMax = (arr, fallback = 1) =>
+    (arr.length ? Math.max(...arr) : fallback) * 1.2;
+
+  const chlorophyllMax = padMax(allChl, 1);
+  const nitrateMax = padMax(allNO3, 1);
+  const nitritMax = padMax(allNO2, 1);
+
+  // Gradients
+  const createGradient = (canvas, c0, c1) => {
+    const ctx = canvas.getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 400);
+    gradient.addColorStop(0, c0);
+    gradient.addColorStop(1, c1);
+    return gradient;
+  };
+
+  const gradientChartData = showMetals
+    ? {
+        labels: years,
+        datasets: metalsData.map((m, idx) => ({
+          label: m.label,
+          data: m.data,
+          borderColor: m.color,
+          backgroundColor: (ctx) => createGradient(ctx.chart.canvas, m.color.replace('1)', '0.7)'), m.color.replace('1)', '0.1)')),
+          fill: true,
+          tension: 0.4,
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          pointBackgroundColor: m.color,
+          pointBorderColor: '#fff',
+          pointBorderWidth: 3,
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: m.color,
+          pointHoverBorderWidth: 3,
+          yAxisID: 'y',
+          spanGaps: true,
+        }))
+      }
+    : {
+        labels: years,
+        datasets: [
+          {
+            label: "Chlorophyll-a (µg/L)",
+            data: chlorophyllData,
+            borderColor: "rgba(34,197,94,1)",
+            backgroundColor: (ctx) =>
+                createGradient(ctx.chart.canvas, "rgba(34,197,94,0.8)", "rgba(34,197,94,0.1)"),
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            pointBackgroundColor: "rgba(34,197,94,1)",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 3,
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(34,197,94,1)",
+            pointHoverBorderWidth: 3,
+            yAxisID: "y",
+            spanGaps: true,
+          },
+          {
+            label: "Nitrate (mg/L)",
+            data: nitrateData,
+            borderColor: "rgba(59,130,246,1)",
+            backgroundColor: (ctx) =>
+                createGradient(ctx.chart.canvas, "rgba(59,130,246,0.6)", "rgba(59,130,246,0.05)"),
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            pointBackgroundColor: "rgba(59,130,246,1)",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 3,
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(59,130,246,1)",
+            pointHoverBorderWidth: 3,
+            yAxisID: "y1",
+            spanGaps: true,
+          },
+          {
+            label: "Nitrit (mg/L)",
+            data: nitritData,
+            borderColor: "rgba(251,191,36,1)",
+            backgroundColor: (ctx) =>
+                createGradient(ctx.chart.canvas, "rgba(251,191,36,0.6)", "rgba(251,191,36,0.05)"),
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            pointBackgroundColor: "rgba(251,191,36,1)",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 3,
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(251,191,36,1)",
+            pointHoverBorderWidth: 3,
+            yAxisID: "y2",
+            spanGaps: true,
+          },
+        ],
+      };
+
+  const gradientOptions = showMetals
+    ? {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 1200, easing: "easeInOutQuart" },
+        plugins: {
+          legend: {
+            position: "top",
+            labels: {
+              usePointStyle: true,
+              pointStyle: "circle",
+              padding: 16,
+              font: { size: 14, weight: "bold" },
+            },
+          },
+          tooltip: {
+            backgroundColor: "rgba(255,255,255,0.95)",
+            titleColor: "#1f2937",
+            bodyColor: "#374151",
+            borderColor: "#e5e7eb",
+            borderWidth: 1,
+            cornerRadius: 12,
+            padding: 12,
+            boxPadding: 6,
+            usePointStyle: true,
+            callbacks: {
+              afterBody: () => [
+                "Annual heavy metals concentrations (µg/L) by year."
+              ],
+            },
+          },
+          title: { display: false },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Year", font: { size: 16, weight: "bold" } },
+            grid: { color: "rgba(0,0,0,0.05)", lineWidth: 1 },
+            ticks: { font: { size: 12 } },
+          },
+          y: {
+            type: "linear",
+            display: true,
+            position: "left",
+            title: {
+              display: true,
+              text: "Concentration (µg/L)",
+              font: { size: 14, weight: "bold" },
+              color: "#be185d",
+            },
+            grid: { color: "rgba(220,38,127,0.1)", lineWidth: 1 },
+            ticks: { color: "#be185d", font: { size: 11, weight: "bold" } },
+            min: 0,
+            // max: metalsMax, // Optionally calculate max
+          },
+        },
+        interaction: { mode: "index", intersect: false },
+        hover: { mode: "nearest", intersect: false, animationDuration: 200 },
+      }
+    : {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1200,
+          easing: "easeInOutQuart",
+        },
+        plugins: {
+          legend: {
+            position: "top",
+            labels: {
+              usePointStyle: true,
+              pointStyle: "circle",
+              padding: 16,
+              font: { size: 14, weight: "bold" },
+            },
+          },
+          tooltip: {
+            backgroundColor: "rgba(255,255,255,0.95)",
+            titleColor: "#1f2937",
+            bodyColor: "#374151",
+            borderColor: "#e5e7eb",
+            borderWidth: 1,
+            cornerRadius: 12,
+            padding: 12,
+            boxPadding: 6,
+            usePointStyle: true,
+            callbacks: {
+              afterBody: () => [
+                "Annual environmental indicators showing water quality trends over time.",
+              ],
+            },
+          },
+          title: {
+            display: false,
+          },
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Year",
+              font: { size: 16, weight: "bold" },
+            },
+            grid: { color: "rgba(0,0,0,0.05)", lineWidth: 1 },
+            ticks: { font: { size: 12 } },
+          },
+          y: {
+            type: "linear",
+            display: true,
+            position: "left",
+            title: {
+              display: true,
+              text: "Chlorophyll-a (µg/L)",
+              font: { size: 14, weight: "bold" },
+              color: "rgba(34,197,94,1)",
+            },
+            grid: { color: "rgba(34,197,94,0.1)", lineWidth: 1 },
+            ticks: { color: "rgba(34,197,94,1)", font: { size: 11, weight: "bold" } },
+            min: 0,
+            max: chlorophyllMax,
+          },
+          y1: {
+            type: "linear",
+            display: true,
+            position: "right",
+            title: {
+              display: true,
+              text: "Nitrate (mg/L)",
+              font: { size: 14, weight: "bold" },
+              color: "rgba(59,130,246,1)",
+            },
+            grid: { drawOnChartArea: false, color: "rgba(59,130,246,0.1)" },
+            ticks: { color: "rgba(59,130,246,1)", font: { size: 11, weight: "bold" } },
+            min: 0,
+            max: nitrateMax,
+          },
+          y2: {
+            type: "linear",
+            display: true,
+            position: "right",
+            offset: true,
+            title: {
+              display: true,
+              text: "Nitrite (mg/L)",
+              font: { size: 14, weight: "bold" },
+              color: "rgba(251,191,36,1)",
+            },
+            grid: { drawOnChartArea: false, color: "rgba(251,191,36,0.1)" },
+            ticks: { color: "rgba(251,191,36,1)", font: { size: 11, weight: "bold" } },
+            min: 0,
+            max: nitritMax,
+          },
+        },
+        interaction: { mode: "index", intersect: false },
+        hover: { mode: "nearest", intersect: false, animationDuration: 200 },
+      };
+
+  // Analysis helpers
+  const analyzeChlorophyllTrends = () => {
+    if (allChl.length < 2) return [];
+    const trends = [];
+    const maxVal = Math.max(...allChl);
+    const maxIdx = chlorophyllData.findIndex((v) => v === maxVal);
+    if (maxVal > 30) {
+      trends.push({
+        type: "peak",
+        year: years[maxIdx],
+        value: maxVal,
+        description: `Peak eutrophication in ${years[maxIdx]}: chlorophyll-a reached ${maxVal.toFixed(
+          1
+        )} µg/L (algal bloom risk).`,
+      });
+    }
+    const first = allChl[0];
+    const last = allChl[allChl.length - 1];
+    if (first && isFinite(first) && isFinite(last)) {
+      const pct = ((last - first) / first) * 100;
+      if (Math.abs(pct) > 20) {
+        trends.push({
+          type: "trend",
+          change: pct,
+          description: `Overall ${pct > 0 ? "increase" : "decrease"} of ${Math.abs(
+            pct
+          ).toFixed(1)}% in chlorophyll-a from ${years[0]} to ${
+            years[years.length - 1]
+          }.`,
+        });
+      }
+    }
+    return trends;
+  };
+
+  const analyzeNitrateTrends = () => {
+    if (allNO3.length < 2) return [];
+    const trends = [];
+    const high = allNO3.filter((v) => v > 10);
+    if (high.length > 0) {
+      trends.push({
+        type: "concern",
+        description: `${high.length} year${
+          high.length > 1 ? "s" : ""
+        } exceeded 10 mg/L (EPA drinking-water limit) — likely runoff or sewage influence.`,
+      });
+    }
+    const changes = [];
+    for (let i = 1; i < allNO3.length; i++) {
+      if (allNO3[i - 1] && allNO3[i]) {
+        changes.push((Math.abs(allNO3[i] - allNO3[i - 1]) / allNO3[i - 1]) * 100);
+      }
+    }
+    if (changes.length) {
+      const avgVol = changes.reduce((a, b) => a + b, 0) / changes.length;
+      if (avgVol > 30) {
+        trends.push({
+          type: "volatility",
+          description: `High nitrate variability (${avgVol.toFixed(
+            1
+          )}% avg year-to-year change) suggests inconsistent pollution sources.`,
+        });
+      }
+    }
+    return trends;
+  };
+
+  const chlorophyllTrends = analyzeChlorophyllTrends();
+  const nitrateTrends = analyzeNitrateTrends();
+
   return (
-    <div>
-      <div className="h-[28rem] mb-8">
-        {chartData.yearlyAverages && chartData.yearlyAverages.length ? (
-          <>
-            <Line
-              key="yearly-trends"
-              ref={chartRef}
-              data={{
-                labels: chartData.yearlyAverages.map(d => d.year),
-                datasets: [
-                  {
-                    label: 'Chlorophyll-a Avg (µg/L)',
-                    data: chartData.yearlyAverages.map(d => d.chlorophyllAvg || null),
-                    borderColor: 'rgba(34,197,94,0.9)',
-                    backgroundColor: 'rgba(34,197,94,0.1)',
-                    yAxisID: 'y',
-                    tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 8
-                  },
-                  {
-                    label: 'Nitrate Avg (mg/L)',
-                    data: chartData.yearlyAverages.map(d => d.nitrateAvg || null),
-                    borderColor: 'rgba(59,130,246,0.9)',
-                    backgroundColor: 'rgba(59,130,246,0.1)',
-                    yAxisID: 'y1',
-                    tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 8
-                  },
-                  {
-                    label: 'E.coli Avg',
-                    data: chartData.yearlyAverages.map(d => d.ecoliAvg || null),
-                    borderColor: 'rgba(249,115,22,0.9)',
-                    backgroundColor: 'rgba(249,115,22,0.1)',
-                    yAxisID: 'y2',
-                    tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 8
-                  }
-                ]
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                  duration: 1200,
-                  easing: 'easeOutQuart',
-                  animateScale: true,
-                  animateRotate: true
-                },
-                interaction: {
-                  mode: 'index',
-                  intersect: false,
-                },
-                plugins: {
-                  legend: { position: 'top' },
-                  tooltip: {
-                    backgroundColor: 'rgba(243,244,246,0.95)',
-                    titleColor: '#111827',
-                    bodyColor: '#374151',
-                    borderColor: '#9CA3AF',
-                    borderWidth: 1,
-                    padding: 12,
-                    callbacks: {
-                      afterBody: () => [
-                        'Annual trends show average environmental indicators over the years. This helps identify long-term patterns in water quality changes and environmental health.'
-                      ]
-                    }
-                  },
-                  zoom: {
-                    pan: { enabled: true, mode: 'xy' },
-                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
-                  }
-                },
-                hover: { mode: 'nearest', intersect: false },
-                scales: {
-                  x: {
-                    title: {
-                      display: true,
-                      text: 'Year'
-                    }
-                  },
-                  y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    title: {
-                      display: true,
-                      text: 'Chlorophyll-a (µg/L)'
-                    },
-                    grid: {
-                      drawOnChartArea: false,
-                    },
-                  },
-                  y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    title: {
-                      display: true,
-                      text: 'Nitrate (mg/L)'
-                    },
-                    grid: {
-                      drawOnChartArea: false,
-                    },
-                  },
-                  y2: {
-                    type: 'logarithmic',
-                    display: false,
-                    position: 'right',
-                  }
-                }
-              }}
-            />
-            <div className="flex justify-start mt-4 pl-4">
-              <button
-                className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium"
-                onClick={handleDownload}
-              >
-                Download
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
-                </svg>
-              </button>
-              <div className="mb-6"></div>
-            </div>
-          </>
-        ) : (
-          <p className="text-center text-gray-500">No yearly data available</p>
-        )}
+    <div className="space-y-6">
+      {/* Toggle Button */}
+      <div className="flex justify-end mb-4">
+        <button
+          className={`px-5 py-2 rounded-full font-semibold shadow transition-all border ${showMetals ? 'bg-pink-600 text-white border-pink-700' : 'bg-blue-600 text-white border-blue-700'}`}
+          onClick={() => setShowMetals((v) => !v)}
+        >
+          {showMetals ? 'Show Chemicals' : 'Show Heavy Metals'}
+        </button>
       </div>
-      
-      {/* Detailed Trend Analysis - Only in yearly trends tab */}
-      {chartData.yearlyAverages && chartData.yearlyAverages.length > 1 && (
-        <div className="mt-8 space-y-6">
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-6 border-l-4 border-red-500">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-              <span className="text-2xl mr-2">⚠️</span>
-              Environmental Concerns & Degradation Trends
-            </h3>
-            
-            {(() => {
-              const years = chartData.yearlyAverages;
-              const concerns = [];
-              
-              // Analyze each year for specific concerns
-              years.forEach((yearData, index) => {
-                const currentYear = yearData;
-                const prevYear = index > 0 ? years[index - 1] : null;
-                
-                // Check for year-over-year spikes
-                if (prevYear) {
-                  // Chlorophyll spike detection
-                  if (prevYear.chlorophyllAvg > 0) {
-                    const chlorophyllSpike = ((currentYear.chlorophyllAvg - prevYear.chlorophyllAvg) / prevYear.chlorophyllAvg * 100);
-                    if (chlorophyllSpike > 50) {
-                      concerns.push({
-                        type: "Eutrophication Crisis",
-                        icon: "🦠",
-                        year: currentYear.year,
-                        change: chlorophyllSpike,
-                        description: `Massive chlorophyll-a spike in ${currentYear.year}: ${chlorophyllSpike.toFixed(1)}% increase from previous year`,
-                        values: `${prevYear.chlorophyllAvg.toFixed(2)} → ${currentYear.chlorophyllAvg.toFixed(2)} µg/L`,
-                        impact: "Severe algal blooms, oxygen depletion, fish kills, and ecosystem collapse",
-                        causes: "Agricultural runoff peak, sewage overflow, or fertilizer dumping"
-                      });
-                    }
-                  }
-                  
-                  // Nitrate spike detection
-                  if (prevYear.nitrateAvg > 0) {
-                    const nitrateSpike = ((currentYear.nitrateAvg - prevYear.nitrateAvg) / prevYear.nitrateAvg * 100);
-                    if (nitrateSpike > 40) {
-                      concerns.push({
-                        type: "Nutrient Pollution Crisis",
-                        icon: "☠️",
-                        year: currentYear.year,
-                        change: nitrateSpike,
-                        description: `Critical nitrate contamination in ${currentYear.year}: ${nitrateSpike.toFixed(1)}% surge`,
-                        values: `${prevYear.nitrateAvg.toFixed(2)} → ${currentYear.nitrateAvg.toFixed(2)} mg/L`,
-                        impact: "Groundwater contamination, drinking water unsafe, blue baby syndrome risk",
-                        causes: "Intensive farming season, fertilizer overuse, or livestock waste event"
-                      });
-                    }
-                  }
-                  
-                  // E.coli outbreak detection
-                  if (prevYear.ecoliAvg > 0) {
-                    const ecoliSpike = ((currentYear.ecoliAvg - prevYear.ecoliAvg) / prevYear.ecoliAvg * 100);
-                    if (ecoliSpike > 100) {
-                      concerns.push({
-                        type: "Fecal Contamination Outbreak",
-                        icon: "🚫",
-                        year: currentYear.year,
-                        change: ecoliSpike,
-                        description: `E.coli outbreak in ${currentYear.year}: ${ecoliSpike.toFixed(1)}% explosion`,
-                        values: `${prevYear.ecoliAvg.toFixed(0)} → ${currentYear.ecoliAvg.toFixed(0)} CFU/100mL`,
-                        impact: "Beach closures, waterborne diseases, tourism losses, public health emergency",
-                        causes: "Sewage system failure, septic overflow, or storm-related contamination"
-                      });
-                    }
-                  }
-                }
-                
-                // Check for absolute high values in specific years
-                if (currentYear.chlorophyllAvg > 30) {
-                  concerns.push({
-                    type: "Severe Eutrophication Event",
-                    icon: "🌊",
-                    year: currentYear.year,
-                    change: null,
-                    description: `Extremely high chlorophyll levels in ${currentYear.year}: ${currentYear.chlorophyllAvg.toFixed(2)} µg/L`,
-                    values: `Critical threshold exceeded (>30 µg/L)`,
-                    impact: "Massive algal blooms, dead zones, complete ecosystem disruption",
-                    causes: "Perfect storm of nutrients, temperature, and weather conditions"
-                  });
-                }
-                
-                if (currentYear.nitrateAvg > 10) {
-                  concerns.push({
-                    type: "Nitrate Contamination Alert",
-                    icon: "⚠️",
-                    year: currentYear.year,
-                    change: null,
-                    description: `Dangerous nitrate levels in ${currentYear.year}: ${currentYear.nitrateAvg.toFixed(2)} mg/L`,
-                    values: `EPA limit exceeded (>10 mg/L)`,
-                    impact: "Drinking water unsafe, infant health risks, environmental degradation",
-                    causes: "Agricultural pollution peak or water treatment failure"
-                  });
-                }
-                
-                if (currentYear.ecoliAvg > 1000) {
-                  concerns.push({
-                    type: "Health Crisis Alert",
-                    icon: "🚨",
-                    year: currentYear.year,
-                    change: null,
-                    description: `Extreme E.coli contamination in ${currentYear.year}: ${currentYear.ecoliAvg.toFixed(0)} CFU/100mL`,
-                    values: `Swimming ban threshold exceeded (>1000 CFU/100mL)`,
-                    impact: "Public health emergency, all water activities prohibited",
-                    causes: "Major sewage incident or catastrophic system failure"
-                  });
-                }
-              });
-              
-              // Remove duplicates and sort by year
-              const uniqueConcerns = concerns.filter((concern, index, self) => 
-                index === self.findIndex(c => c.year === concern.year && c.type === concern.type)
-              ).sort((a, b) => parseInt(b.year) - parseInt(a.year));
-              
-              if (uniqueConcerns.length === 0) {
-                return (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p className="text-green-800 font-medium">✅ No major environmental crises detected in specific years.</p>
-                  </div>
-                );
-              }
-              
-              return (
-                <div className="space-y-4">
-                  {uniqueConcerns.map((concern, index) => (
-                    <div key={index} className="bg-white border border-red-200 rounded-lg p-5 shadow-sm">
-                      <h4 className="font-bold text-red-800 mb-2 flex items-center">
-                        <span className="text-xl mr-2">{concern.icon}</span>
-                        {concern.type} - {concern.year}
-                        {concern.change && (
-                          <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">
-                            +{concern.change.toFixed(1)}%
-                          </span>
-                        )}
-                      </h4>
-                      <p className="text-gray-700 mb-2 font-medium">{concern.description}</p>
-                      <p className="text-sm text-blue-700 mb-2"><strong>Values:</strong> {concern.values}</p>
-                      <div className="text-sm space-y-1">
-                        <p><strong className="text-red-700">Environmental Impact:</strong> {concern.impact}</p>
-                        <p><strong className="text-orange-700">Likely Causes:</strong> {concern.causes}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
-          </div>
-          
-          {/* Trend Analysis Cards */}
-          <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 border-l-4 border-blue-500">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-              <span className="text-2xl mr-2">📈</span>
-              Detailed Trend Analysis ({chartData.yearlyAverages[0].year}-{chartData.yearlyAverages[chartData.yearlyAverages.length - 1].year})
-            </h3>
-            
-            {(() => {
-              const years = chartData.yearlyAverages;
-              const firstYear = years[0];
-              const lastYear = years[years.length - 1];
-              
-              const chlorophyllChange = firstYear.chlorophyllAvg > 0 ? 
-                ((lastYear.chlorophyllAvg - firstYear.chlorophyllAvg) / firstYear.chlorophyllAvg * 100) : 0;
-              const nitrateChange = firstYear.nitrateAvg > 0 ? 
-                ((lastYear.nitrateAvg - firstYear.nitrateAvg) / firstYear.nitrateAvg * 100) : 0;
-              const ecoliChange = firstYear.ecoliAvg > 0 ? 
-                ((lastYear.ecoliAvg - firstYear.ecoliAvg) / firstYear.ecoliAvg * 100) : 0;
-              
-              const getTrendIcon = (change) => {
-                if (Math.abs(change) < 5) return "➡️";
-                return change > 0 ? "📈" : "📉";
-              };
-              
-              const getTrendColor = (change, isGoodWhenLow = false) => {
-                if (Math.abs(change) < 5) return "text-yellow-700 bg-yellow-50 border-yellow-200";
-                const isIncreasing = change > 0;
-                if (isGoodWhenLow) {
-                  return isIncreasing ? "text-red-700 bg-red-50 border-red-200" : "text-green-700 bg-green-50 border-green-200";
-                } else {
-                  return isIncreasing ? "text-green-700 bg-green-50 border-green-200" : "text-red-700 bg-red-50 border-red-200";
-                }
-              };
-              
-              return (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className={`rounded-lg p-4 border-2 ${getTrendColor(chlorophyllChange, true)}`}>
-                    <h4 className="font-semibold mb-2 flex items-center">
-                      <span className="mr-2">{getTrendIcon(chlorophyllChange)}</span>
-                      Chlorophyll-a
-                    </h4>
-                    <p className="text-sm">
-                      {Math.abs(chlorophyllChange).toFixed(1)}% change<br/>
-                      {firstYear.chlorophyllAvg.toFixed(2)} → {lastYear.chlorophyllAvg.toFixed(2)} µg/L
-                    </p>
-                  </div>
-                  
-                  <div className={`rounded-lg p-4 border-2 ${getTrendColor(nitrateChange, true)}`}>
-                    <h4 className="font-semibold mb-2 flex items-center">
-                      <span className="mr-2">{getTrendIcon(nitrateChange)}</span>
-                      Nitrate
-                    </h4>
-                    <p className="text-sm">
-                      {Math.abs(nitrateChange).toFixed(1)}% change<br/>
-                      {firstYear.nitrateAvg.toFixed(2)} → {lastYear.nitrateAvg.toFixed(2)} mg/L
-                    </p>
-                  </div>
-                  
-                  <div className={`rounded-lg p-4 border-2 ${getTrendColor(ecoliChange, true)}`}>
-                    <h4 className="font-semibold mb-2 flex items-center">
-                      <span className="mr-2">{getTrendIcon(ecoliChange)}</span>
-                      E.coli
-                    </h4>
-                    <p className="text-sm">
-                      {Math.abs(ecoliChange).toFixed(1)}% change<br/>
-                      {firstYear.ecoliAvg.toFixed(0)} → {lastYear.ecoliAvg.toFixed(0)} CFU/100mL
-                    </p>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
+      {/* Chart card */}
+      <div className={`bg-gradient-to-br ${showMetals ? 'from-pink-50 via-white to-pink-100' : 'from-blue-50 via-white to-green-50'} rounded-2xl p-8 shadow-lg border border-gray-200`}>
+        <div className="h-[36rem] mb-6">
+          <Line ref={chartRef} data={gradientChartData} options={gradientOptions} />
         </div>
-      )}
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-gray-600">
+            {showMetals
+              ? `Heavy metals trends from ${years[0]} to ${years[years.length - 1]}`
+              : `Environmental trends from ${years[0]} to ${years[years.length - 1]}`}
+          </div>
+          <button
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg transition-all transform hover:scale-105 font-medium"
+            onClick={handleDownload}
+          >
+            Download
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Trend Analysis Section */}
+      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+        <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <span className="text-3xl mr-3">📊</span>
+          {showMetals ? "Heavy Metals Analysis" : "Trend Analysis & Environmental Insights"}
+        </h3>
+
+        {showMetals ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {metalsData.map((m, idx) => (
+              <div key={m.key} className="bg-pink-50 border border-pink-200 rounded-xl p-5">
+                <h4 className="font-bold text-pink-800 mb-3 flex items-center">
+                  <span className="w-4 h-4" style={{backgroundColor: m.color, borderRadius: '50%', marginRight: '8px'}}></span>
+                  {m.label}
+                </h4>
+                <div className="space-y-2">
+                  <p className="text-sm text-pink-700">Yearly average: {m.data.map((v, i) => v !== null ? `${years[i]}: ${v.toFixed(2)}` : null).filter(Boolean).join(', ')}</p>
+                  <div className="mt-3 p-2 bg-pink-100 rounded text-xs text-pink-800">
+                    <strong>Context:</strong> High levels of heavy metals can be toxic to aquatic life and humans. Trends may indicate pollution sources or sediment release.
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Chlorophyll Analysis */}
+            <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+              <h4 className="font-bold text-green-800 mb-3 flex items-center">
+                <span className="w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                Chlorophyll-a Trends
+              </h4>
+              <div className="space-y-2">
+                {chlorophyllTrends.length ? (
+                  chlorophyllTrends.map((t, i) => (
+                    <div key={i} className="text-sm text-green-700">
+                      <p className="leading-relaxed">{t.description}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-green-700">
+                    Chlorophyll levels show stable patterns within normal ranges.
+                  </p>
+                )}
+                <div className="mt-3 p-2 bg-green-100 rounded text-xs text-green-800">
+                  <strong>Context:</strong> Values above ~30 µg/L indicate eutrophication. Rising trends
+                  suggest nutrient enrichment from agricultural/urban runoff.
+                </div>
+              </div>
+            </div>
+
+            {/* Nitrate Analysis */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+              <h4 className="font-bold text-blue-800 mb-3 flex items-center">
+                <span className="w-4 h-4 bg-blue-500 rounded-full mr-2"></span>
+                Nitrate Patterns
+              </h4>
+              <div className="space-y-2">
+                {nitrateTrends.length ? (
+                  nitrateTrends.map((t, i) => (
+                    <div key={i} className="text-sm text-blue-700">
+                      <p className="leading-relaxed">{t.description}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-blue-700">
+                    Nitrate levels remain within acceptable ranges with minimal variation.
+                  </p>
+                )}
+                <div className="mt-3 p-2 bg-blue-100 rounded text-xs text-blue-800">
+                  <strong>Context:</strong> EPA limit ≈ 10 mg/L (drinking water). High values can indicate
+                  fertilizer/ sewage contamination.
+                </div>
+              </div>
+            </div>
+
+            {/* Space for a third insight card (optional) */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5">
+              <h4 className="font-bold text-yellow-800 mb-3 flex items-center">
+                <span className="w-4 h-4 bg-yellow-500 rounded-full mr-2"></span>
+                Nitrite Signals
+              </h4>
+              <p className="text-sm text-yellow-700 leading-relaxed">
+                Nitrite spikes may reflect active nitrification stages or episodic inputs. Track alongside
+                nitrate and oxygen to interpret biogeochemical shifts.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Overall Environmental Health Summary */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <h5 className="font-bold text-gray-800 mb-2">Environmental Health Summary</h5>
+          <p className="text-sm text-gray-700 leading-relaxed">
+            {showMetals
+              ? "Heavy metals can accumulate in aquatic environments, posing risks to organisms and humans. Monitoring trends helps identify pollution sources and guide remediation."
+              : "The multi-year trends reveal interconnected water-quality patterns. Chlorophyll spikes often co-occur with increased nutrient loading, while E. coli outbreaks typically follow rain/flood events or infrastructure failures. Sustained improvements require integrated watershed management addressing both point and non-point pollution sources."}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default YearlyTrendsChart;
+export default BeautifulYearlyTrendsChart;

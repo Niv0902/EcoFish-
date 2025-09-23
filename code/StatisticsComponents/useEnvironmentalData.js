@@ -243,11 +243,56 @@ export const useEnvironmentalData = () => {
     // Process yearly data for summary charts
     const yearlyAverages = Object.keys(yearlyData).sort().map(year => {
       const data = yearlyData[year];
+      // Gather heavy metals for this year from heavyMetalsData
+      const metalsYear = { Cd: [], Pb: [], Hg: [], Cu: [], Zn: [], Fe: [], Mn: [], Al: [] };
+      Object.keys(heavyMetalsData || {}).forEach(depthKey => {
+        const yearsObj = heavyMetalsData[depthKey];
+        if (yearsObj && yearsObj[year]) {
+          const monthsArr = yearsObj[year];
+          if (Array.isArray(monthsArr)) {
+            monthsArr.forEach(monthObj => {
+              if (monthObj && typeof monthObj === 'object') {
+                Object.keys(monthObj).forEach(dayKey => {
+                  const samplesArr = monthObj[dayKey];
+                  if (Array.isArray(samplesArr)) {
+                    samplesArr.forEach(sample => {
+                      if (sample && typeof sample === 'object') {
+                        [
+                          ['Cd_µg_L', 'Cd'],
+                          ['Pb_µg_L', 'Pb'],
+                          ['Hg_µg_L', 'Hg'],
+                          ['Cu_µg_L', 'Cu'],
+                          ['Zn_µg_L', 'Zn'],
+                          ['Fe_µg_L', 'Fe'],
+                          ['Mn_µg_L', 'Mn'],
+                          ['Al_µg_L', 'Al']
+                        ].forEach(([field, key]) => {
+                          if (sample[field] != null && !isNaN(sample[field])) {
+                            metalsYear[key].push(Number(sample[field]));
+                          }
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+        }
+      });
       return {
         year,
         chlorophyllAvg: data.chlorophyll.length > 0 ? data.chlorophyll.reduce((s,v) => s+v, 0) / data.chlorophyll.length : 0,
         nitrateAvg: data.nitrate.length > 0 ? data.nitrate.reduce((s,v) => s+v, 0) / data.nitrate.length : 0,
         ecoliAvg: data.ecoli.length > 0 ? data.ecoli.reduce((s,v) => s+v, 0) / data.ecoli.length : 0,
+        avg_Cd: metalsYear.Cd.length > 0 ? metalsYear.Cd.reduce((s,v) => s+v, 0) / metalsYear.Cd.length : null,
+        avg_Pb: metalsYear.Pb.length > 0 ? metalsYear.Pb.reduce((s,v) => s+v, 0) / metalsYear.Pb.length : null,
+        avg_Hg: metalsYear.Hg.length > 0 ? metalsYear.Hg.reduce((s,v) => s+v, 0) / metalsYear.Hg.length : null,
+        avg_Cu: metalsYear.Cu.length > 0 ? metalsYear.Cu.reduce((s,v) => s+v, 0) / metalsYear.Cu.length : null,
+        avg_Zn: metalsYear.Zn.length > 0 ? metalsYear.Zn.reduce((s,v) => s+v, 0) / metalsYear.Zn.length : null,
+        avg_Fe: metalsYear.Fe.length > 0 ? metalsYear.Fe.reduce((s,v) => s+v, 0) / metalsYear.Fe.length : null,
+        avg_Mn: metalsYear.Mn.length > 0 ? metalsYear.Mn.reduce((s,v) => s+v, 0) / metalsYear.Mn.length : null,
+        avg_Al: metalsYear.Al.length > 0 ? metalsYear.Al.reduce((s,v) => s+v, 0) / metalsYear.Al.length : null,
         sampleCount: data.chlorophyll.length + data.nitrate.length + data.ecoli.length
       };
     }).filter(item => item.sampleCount > 0);

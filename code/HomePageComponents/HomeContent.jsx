@@ -17,7 +17,7 @@ const HomeContent = ({ contaminants, algaeBloom, kinneretFacts, currentFact, set
               <span className="text-xl text-blue-800 font-black tracking-wider drop-shadow-lg">Sea of Galilee (Kinneret), Israel</span>
             </div>
             <h2 className="text-7xl font-black mb-4 bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-600 bg-clip-text text-transparent drop-shadow-2xl tracking-tight">
-              Kinneret Pollution Report
+              Water Guard
             </h2>
             <div className="absolute -top-4 -right-16">
               <AlertTriangle className="w-16 h-16 text-red-500 animate-bounce" />

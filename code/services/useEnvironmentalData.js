@@ -145,6 +145,9 @@ export const useEnvironmentalData = () => {
             if (sample.avg_nitrit != null && !isNaN(sample.avg_nitrit)) {
               const value = Number(sample.avg_nitrit);
               nitrite.push({ date, value, year });
+              // Collect per-year nitrite for yearly averages
+              if (!Array.isArray(yearlyData[year].nitrite)) yearlyData[year].nitrite = [];
+              yearlyData[year].nitrite.push(value);
             }
           });
         });
@@ -288,10 +291,21 @@ export const useEnvironmentalData = () => {
           }
         }
       });
+      // Calculate yearly average for nitrite
+      let nitritAvg = 0;
+      if (Array.isArray(data.nitrite) && data.nitrite.length > 0) {
+        nitritAvg = data.nitrite.reduce((s, v) => s + v, 0) / data.nitrite.length;
+      } else if (Array.isArray(data.nitrit) && data.nitrit.length > 0) {
+        nitritAvg = data.nitrit.reduce((s, v) => s + v, 0) / data.nitrit.length;
+      } else {
+        // fallback: scan nitrite array from earlier processing
+        nitritAvg = 0;
+      }
       return {
         year,
         chlorophyllAvg: data.chlorophyll.length > 0 ? data.chlorophyll.reduce((s,v) => s+v, 0) / data.chlorophyll.length : 0,
         nitrateAvg: data.nitrate.length > 0 ? data.nitrate.reduce((s,v) => s+v, 0) / data.nitrate.length : 0,
+        avg_nitrit: nitritAvg,
         ecoliAvg: data.ecoli.length > 0 ? data.ecoli.reduce((s,v) => s+v, 0) / data.ecoli.length : 0,
         avg_Cd: metalsYear.Cd.length > 0 ? metalsYear.Cd.reduce((s,v) => s+v, 0) / metalsYear.Cd.length : null,
         avg_Pb: metalsYear.Pb.length > 0 ? metalsYear.Pb.reduce((s,v) => s+v, 0) / metalsYear.Pb.length : null,

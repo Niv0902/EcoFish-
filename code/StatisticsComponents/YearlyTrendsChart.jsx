@@ -181,7 +181,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
             spanGaps: true,
           },
           {
-            label: "Nitrit (mg/L)",
+            label: "Nitrite (mg/L)",
             data: nitritData,
             borderColor: "rgba(251,191,36,1)",
             backgroundColor: (ctx) =>

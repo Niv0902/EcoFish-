@@ -1,12 +1,12 @@
 import React from 'react';
-import { Home, FileText, BarChart3, Image, Brain, Download, BarChart2Icon, BarChart3Icon } from 'lucide-react';
+import { Home, FileText, BarChart3, Image, TrendingUp } from 'lucide-react';
 
 const Navigation = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { id: 'home', label: 'Home', icon: Home, color: 'from-blue-600 to-cyan-700' },
     { id: 'ecoreport', label: 'EcoReport', icon: FileText, color: 'from-green-600 to-emerald-700' },
     { id: 'statistics', label: 'Statistics', icon: BarChart3, color: 'from-red-600 to-orange-700' },
-  { id: 'pollutionEstimates', label: 'Future Estimates', icon: BarChart3, color: 'from-red-600 to-yellow-500' },
+  { id: 'pollutionEstimates', label: 'Future Estimates', icon: TrendingUp, color: 'from-red-600 to-yellow-500' },
     { id: 'gallery', label: 'Gallery', icon: Image, color: 'from-purple-600 to-pink-700' }
   ];
 

@@ -40,7 +40,7 @@ class AIService {
 
   constructor() {
     this.apiKey = null;
-    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent';
     
     // Predefined pollution factor data
     this.pollutionData = {

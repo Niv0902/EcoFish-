@@ -109,23 +109,34 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
                 },
                 hover: { mode: 'nearest', intersect: false },
                 scales: {
-                  y: { beginAtZero: true },
-                  x: {
-                    ticks: {
-                      padding: 12,
-                      autoSkip: false,
-                      maxRotation: 0,
-                      minRotation: 0
-                    },
-                    grid: {
-                      drawOnChartArea: true,
-                    },
-                    offset: true,
-                    title: {
-                      display: false
-                    }
-                  }
-                }
+  y: {
+    beginAtZero: true,
+    title: {
+      display: true,
+      text:
+        selectedChemical === 'chlorophyll'
+          ? 'Chlorophyll-a (µg/L)'
+          : selectedChemical === 'nitrate'
+          ? 'Nitrate avg concentration (µg/L)'
+          : 'Nitrite avg concentration (µg/L)'
+    }
+  },
+  x: {
+    ticks: {
+      padding: 12,
+      autoSkip: false,
+      maxRotation: 0,
+      minRotation: 0
+    },
+    grid: {
+      drawOnChartArea: true,
+    },
+    offset: true,
+    title: {
+      display: false
+    }
+  }
+}
               }}
             />
             <button

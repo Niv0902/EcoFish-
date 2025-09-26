@@ -76,7 +76,7 @@ const EcoliFloodYearChart = () => {
     labels,
     datasets: [
       {
-        label: 'Avg E.coli',
+        label: 'E.coli (CFU/100mL)',
         data: ecoliAverages,
         backgroundColor: floodYears.map(f => f ? 'rgba(255,99,132,0.7)' : 'rgba(54,162,235,0.5)'),
         borderColor: floodYears.map(f => f ? 'rgba(255,99,132,1)' : 'rgba(54,162,235,1)'),

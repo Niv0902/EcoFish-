@@ -183,7 +183,7 @@ const ChemicalExtremesBar = () => {
                   y: {
                     title: {
                       display: true,
-                      text: 'Concentration',
+                      text: 'Avg Concentration (µg/L)',
                       font: { size: 13, weight: 'bold' },
                     },
                     ticks: {

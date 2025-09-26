@@ -102,7 +102,7 @@ const KineretHeightChemScatter = ({ dataArr }) => {
       y: {
         title: {
           display: true,
-          text: "Concentration",
+          text: "Avg Concentration (µg/L)",
           font: { size: 16, weight: "bold" },
         },
         grid: { color: "rgba(0,0,0,0.05)" },

@@ -91,7 +91,7 @@ const HeavyMetalsChart = ({ chartData, hasAnimated }) => {
                     offset: true,
                     grid: { drawOnChartArea: true }
                   },
-                  y: { title: { display: true, text: 'Avg concentration (µg/L)' }, type: 'logarithmic' }
+                  y: { title: { display: true, text: `${selectedMetal} avg concentration (µg/L)` }, type: 'logarithmic' }
                 }
               }}
             />

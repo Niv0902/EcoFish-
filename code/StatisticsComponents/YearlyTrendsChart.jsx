@@ -162,7 +162,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
             spanGaps: true,
           },
           {
-            label: "Nitrate (mg/L)",
+            label: "Nitrate (µg/L)",
             data: nitrateData,
             borderColor: "rgba(59,130,246,1)",
             backgroundColor: (ctx) =>
@@ -181,7 +181,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
             spanGaps: true,
           },
           {
-            label: "Nitrite (mg/L)",
+            label: "Nitrite (µg/L)",
             data: nitritData,
             borderColor: "rgba(251,191,36,1)",
             backgroundColor: (ctx) =>
@@ -328,7 +328,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
             position: "right",
             title: {
               display: true,
-              text: "Nitrate (mg/L)",
+              text: "Nitrate (µg/L)",
               font: { size: 14, weight: "bold" },
               color: "rgba(59,130,246,1)",
             },
@@ -344,7 +344,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
             offset: true,
             title: {
               display: true,
-              text: "Nitrite (mg/L)",
+              text: "Nitrite (µg/L)",
               font: { size: 14, weight: "bold" },
               color: "rgba(251,191,36,1)",
             },
@@ -402,7 +402,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
         type: "concern",
         description: `${high.length} year${
           high.length > 1 ? "s" : ""
-        } exceeded 10 mg/L (EPA drinking-water limit) — likely runoff or sewage influence.`,
+        } exceeded 10 µg/L (EPA drinking-water limit) — likely runoff or sewage influence.`,
       });
     }
     const changes = [];
@@ -539,7 +539,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
                   </p>
                 )}
                 <div className="mt-3 p-2 bg-blue-100 rounded text-xs text-blue-800">
-                  <strong>Context:</strong> EPA limit ≈ 10 mg/L (drinking water). High values can indicate
+                  <strong>Context:</strong> EPA limit ≈ 10 µg/L (drinking water). High values can indicate
                   fertilizer/ sewage contamination.
                 </div>
               </div>

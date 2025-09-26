@@ -186,7 +186,7 @@ export default function CorrelationScatter() {
                     x: {
                       title: { 
                         display: true, 
-                        text: 'Chlorophyll-a (chl_ug_l_avg)', 
+                        text: 'Chlorophyll-a (µg/L)', 
                         font: { size: 14, weight: 'bold' } 
                       },
                       grid: { color: 'rgba(0,0,0,0.1)' },
@@ -194,7 +194,7 @@ export default function CorrelationScatter() {
                     y: {
                       title: { 
                         display: true, 
-                        text: 'E.coli', 
+                        text: 'E.coli (CFU/100mL)', 
                         font: { size: 14, weight: 'bold' } 
                       },
                       grid: { color: 'rgba(0,0,0,0.1)' },

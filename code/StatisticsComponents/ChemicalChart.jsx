@@ -60,7 +60,7 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
             onChange={(e) => setSelectedChemical(e.target.value)}
             className="border rounded px-3 py-1 text-sm"
           >
-            <option value="chlorophyll">Chlorophyll-a</option>
+            <option value="chlorophyll">Chloride</option>
             <option value="nitrate">Nitrate</option>
             <option value="nitrite">Nitrite</option>
           </select>
@@ -168,8 +168,8 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
             <div className="mt-4 px-2 text-gray-700 text-sm text-left">
               {selectedChemical === 'chlorophyll' ? (
                 <>
-                  <b>What is measured?</b> Chlorophyll‑a is a marker for algal biomass and blooms. High values indicate nutrient enrichment (eutrophication) and reduced water clarity.<br/>
-                  <b>Trends:</b> An increase over the months may indicate seasonal blooms or pollution, while a decrease suggests cleaner water.
+                  <b>What is measured?</b> Chloride (mg/L) is a common ion in water, often originating from natural sources or pollution such as road salts and sewage. High values may indicate contamination.<br/>
+      <b>Trends:</b> An increase over the months may indicate pollution or saltwater intrusion, while a decrease suggests improving water quality.
                 </>
               ) : selectedChemical === 'nitrate' ? (
                 <>

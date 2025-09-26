@@ -80,7 +80,7 @@ const StatisticsDashboard = () => {
       icon: '📊',
       color: 'purple',
       tabs: [
-        { id: 'scatter', label: 'Chlorophyll vs E.coli' },
+        { id: 'scatter', label: 'Chloride vs E.coli' },
         { id: 'yearly', label: 'Pollutants Yearly Trends' }
       ]
     }

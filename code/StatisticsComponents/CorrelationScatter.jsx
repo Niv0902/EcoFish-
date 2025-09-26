@@ -106,7 +106,7 @@ export default function CorrelationScatter() {
       const url = canvas.toDataURL('image/jpeg', 1.0);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'chlorophyll-ecoli-correlation.jpg';
+      link.download = 'Chloride-ecoli-correlation.jpg';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -124,7 +124,7 @@ export default function CorrelationScatter() {
           <div className="bg-white border rounded-lg p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">
-                Correlation: Chlorophyll-a vs E.coli
+                Correlation: Chloride vs E.coli
               </h3>
               <button
                 onClick={handleDownload}
@@ -143,7 +143,7 @@ export default function CorrelationScatter() {
                 data={{
                   datasets: [
                     {
-                      label: 'Chlorophyll-a vs E.coli',
+                      label: 'Chloride vs E.coli',
                       data: mergedPoints,
                       backgroundColor: 'rgba(54,162,235,0.6)',
                       borderColor: 'rgba(54,162,235,1)',
@@ -175,7 +175,7 @@ export default function CorrelationScatter() {
                         label: function(context) {
                           if (context.datasetIndex === 0) {
                             const point = mergedPoints[context.dataIndex];
-                            return `Chlorophyll-a: ${context.parsed.x.toFixed(2)}, E.coli: ${context.parsed.y.toFixed(2)} (${point?.year}/${point?.month})`;
+                            return `Chloride: ${context.parsed.x.toFixed(2)}, E.coli: ${context.parsed.y.toFixed(2)} (${point?.year}/${point?.month})`;
                           }
                           return context.dataset.label;
                         }
@@ -186,7 +186,7 @@ export default function CorrelationScatter() {
                     x: {
                       title: { 
                         display: true, 
-                        text: 'Chlorophyll-a (µg/L)', 
+                        text: 'Chloride (µg/L)', 
                         font: { size: 14, weight: 'bold' } 
                       },
                       grid: { color: 'rgba(0,0,0,0.1)' },
@@ -214,7 +214,7 @@ export default function CorrelationScatter() {
                 </div>
                 {crossTableCorrelation !== null && (
                   <div className="mt-1 text-xs text-blue-700 text-center">
-                    A low correlation coefficient between chlorophyll and E.coli can actually indicate a positive or normal situation regarding pollution.
+                    A low correlation coefficient between Chloride and E.coli can actually indicate a positive or normal situation regarding pollution.
                   </div>
                 )}
                 {crossTableCorrelation !== null && (

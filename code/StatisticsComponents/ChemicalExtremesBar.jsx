@@ -73,12 +73,12 @@ const ChemicalExtremesBar = () => {
     if (activeChemical === 'chl') {
       datasets = [
         {
-          label: 'Max Chlorophyll-a',
+          label: 'Max Chloride',
           data: years.map(y => yearly[y].chl.length ? Math.max(...yearly[y].chl) : null),
           backgroundColor: 'rgba(34,197,94,0.7)'
         },
         {
-          label: 'Min Chlorophyll-a',
+          label: 'Min Chloride',
           data: years.map(y => yearly[y].chl.length ? Math.min(...yearly[y].chl) : null),
           backgroundColor: 'rgba(34,197,94,0.5)'
         }
@@ -126,7 +126,7 @@ const ChemicalExtremesBar = () => {
           value={activeChemical}
           onChange={e => setActiveChemical(e.target.value)}
         >
-          <option value="chl">Chlorophyll-a</option>
+          <option value="chl">Chloride</option>
           <option value="nitrate">Nitrate</option>
           <option value="nitrit">Nitrite</option>
         </select>

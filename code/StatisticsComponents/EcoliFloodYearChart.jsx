@@ -99,7 +99,7 @@ const EcoliFloodYearChart = () => {
     },
     scales: {
       x: { title: { display: true, text: 'Year' } },
-      y: { title: { display: true, text: 'Avg E.coli' }, beginAtZero: true },
+      y: { title: { display: true, text: 'Avg E.coli (CFU/100mL)' }, beginAtZero: true },
     },
   };
   const chartRef = React.useRef(null);

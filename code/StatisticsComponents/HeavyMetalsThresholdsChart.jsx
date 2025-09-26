@@ -179,7 +179,7 @@ const HeavyMetalsThresholdsChart = () => {
       x: {
         title: {
           display: true,
-          text: 'Metal',
+          text: 'Metal (µg/L)',
           font: { size: 13, weight: 'bold' },
         },
         ticks: {

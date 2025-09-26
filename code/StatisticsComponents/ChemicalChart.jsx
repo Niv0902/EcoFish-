@@ -110,17 +110,20 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
                 hover: { mode: 'nearest', intersect: false },
                 scales: {
   y: {
-    beginAtZero: true,
-    title: {
-      display: true,
-      text:
-        selectedChemical === 'chlorophyll'
-          ? 'Chlorophyll-a (µg/L)'
-          : selectedChemical === 'nitrate'
-          ? 'Nitrate avg concentration (µg/L)'
-          : 'Nitrite avg concentration (µg/L)'
+  beginAtZero: true,
+  title: {
+    display: true,
+    text:
+      selectedChemical === 'chlorophyll'
+        ? 'Chlorophyll-a (µg/L)'
+        : selectedChemical === 'nitrate'
+        ? 'Nitrate avg concentration (mg/L)'
+        : 'Nitrite avg concentration (mg/L)',
+    font: {
+      weight: 'bold'
     }
-  },
+  }
+},
   x: {
     ticks: {
       padding: 12,
@@ -133,7 +136,11 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
     },
     offset: true,
     title: {
-      display: false
+      display: true,
+      text: 'Month',
+       font: {
+      weight: 'bold'
+    }
     }
   }
 }

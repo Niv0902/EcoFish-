@@ -80,18 +80,22 @@ const HeavyMetalsChart = ({ chartData, hasAnimated }) => {
                 },
                 scales: {
                   x: {
-                    title: { display: true, text: 'Depth (m)' },
-                    ticks: {
-                      padding: 12,
-                      autoSkip: false,
-                      maxRotation: 0,
-                      minRotation: 0,
-                      align: 'center'
-                    },
-                    offset: true,
-                    grid: { drawOnChartArea: true }
-                  },
-                  y: { title: { display: true, text: `${selectedMetal} avg concentration (µg/L)` }, type: 'logarithmic' }
+  title: { 
+    display: true, 
+    text: 'Depth (m)', 
+    font: { weight: 'bold' } // <-- move here
+  },
+  ticks: {
+    padding: 12,
+    autoSkip: false,
+    maxRotation: 0,
+    minRotation: 0,
+    align: 'center'
+  },
+  offset: true,
+  grid: { drawOnChartArea: true }
+},
+                  y: { title: { display: true, text: `${selectedMetal} avg concentration (µg/L)`,   font: { weight: 'bold' } }, type: 'logarithmic' }
                 }
               }}
             />

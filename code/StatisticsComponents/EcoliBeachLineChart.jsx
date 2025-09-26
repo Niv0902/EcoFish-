@@ -87,16 +87,24 @@ const EcoliBeachLineChart = ({ beaches }) => {
         }
       }
     },
-    scales: {
-      x: {
-        title: { display: true, text: 'Beach' },
-        grid: { color: 'rgba(59,130,246,0.1)' }
-      },
-      y: {
-        title: { display: true, text: 'E.coli (CFU/100mL)' },
-        grid: { color: 'rgba(239,68,68,0.1)' }
-      }
-    }
+   scales: {
+  x: {
+    title: {
+      display: true,
+      text: 'Beach',
+      font: { weight: 'bold' }
+    },
+    grid: { color: 'rgba(59,130,246,0.1)' }
+  },
+  y: {
+    title: {
+      display: true,
+      text: 'E.coli (CFU/100mL)',
+      font: { weight: 'bold' }
+    },
+    grid: { color: 'rgba(239,68,68,0.1)' }
+  }
+}
   };
 
   const chartRef = React.useRef(null);

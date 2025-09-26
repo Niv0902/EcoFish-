@@ -4,6 +4,7 @@ import { Chart as ChartJS, PointElement, LinearScale, Tooltip, Legend } from 'ch
 import { db } from '../services/firebase';
 import { ref, get } from 'firebase/database';
 import regression from 'regression';
+import { FileImage } from 'lucide-react';
 
 ChartJS.register(PointElement, LinearScale, Tooltip, Legend);
 
@@ -126,16 +127,23 @@ export default function CorrelationScatter() {
               <h3 className="text-lg font-bold">
                 Correlation: Chloride vs E.coli
               </h3>
-              <button
-                onClick={handleDownload}
-                className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
-                disabled={mergedPoints.length === 0}
-              >
-                Download
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
-                </svg>
-              </button>
+             <button
+  className="px-4 py-2 rounded-lg font-medium text-white transition-all transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg hover:shadow-xl"
+  onClick={() => {
+    const chartInstance = chartRef.current?.chartInstance || chartRef.current?.instance || chartRef.current;
+    if (chartInstance && chartInstance.toBase64Image) {
+      const link = document.createElement('a');
+      link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+      link.download = `Correlation-Scatter.jpg`;
+      link.click();
+    } else {
+      alert('Chart image download not supported in this browser.');
+    }
+  }}
+>
+  Download
+  <FileImage className="w-4 h-4" />
+</button>
             </div>
             <div className="w-full" style={{ height: '400px' }}>
               <Scatter

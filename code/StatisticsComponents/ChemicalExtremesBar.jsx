@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { db } from '../services/firebase';
 import { ref, get } from 'firebase/database';
+import { FileImage } from 'lucide-react';
 
 function extractSamples(chemicals) {
   const samples = [];
@@ -195,15 +196,23 @@ const ChemicalExtremesBar = () => {
             />
           </div>
           <div className="flex justify-start mt-4">
-            <button
-              className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow transition-colors font-medium"
-              onClick={handleDownload}
-            >
-              Download
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4m-8 8h8" />
-              </svg>
-            </button>
+<button
+  className="px-4 py-2 rounded-lg font-medium text-white transition-all transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg hover:shadow-xl"
+  onClick={() => {
+    const chartInstance = chartRef.current?.chartInstance || chartRef.current?.instance || chartRef.current;
+    if (chartInstance && chartInstance.toBase64Image) {
+      const link = document.createElement('a');
+      link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+      link.download = `Chemical-Extremes-Bar.jpg`;
+      link.click();
+    } else {
+      alert('Chart image download not supported in this browser.');
+    }
+  }}
+>
+  Download
+  <FileImage className="w-4 h-4" />
+</button>
           </div>
         </>
       )}

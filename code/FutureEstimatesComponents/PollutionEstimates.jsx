@@ -4,6 +4,7 @@ import TimelineLegend from './TimelineLegend';
 import PollutionSources from './PollutionSources';
 import InteractiveYearlyAnalysis from './YearlyAnalysis';
 import DownloadComponent from './DownloadComponent';
+import TimelineColorLegend from './TimelineColorLegend';
 
 const categories = {
   analysis: {
@@ -114,6 +115,7 @@ const PollutionEstimates = () => {
                 <p className="text-4xl font-bold text-green-600">3</p>
                 <p className="text-gray-500 mt-1">Environmental scenarios modeled</p>
               </div>
+
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                 <span className="text-3xl">🌊</span>
               </div>
@@ -170,6 +172,52 @@ const PollutionEstimates = () => {
                 <h3 className="text-xl font-bold text-gray-800">
                   {getCurrentImage().alt}
                 </h3>
+                
+                {/* PCA Analysis Explanation */}
+                {activeCategory === 'analysis' && (
+                  <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <p className="text-sm text-green-800 mb-2">
+                      <strong>PCA Biplot Analysis:</strong> Shows relationships between environmental variables and temporal changes (2010-2023).
+                    </p>
+                    <div className="text-xs text-green-700 space-y-1 text-center">
+                  <p><strong>Main trends:</strong> Early years (2010–2014) are clustered together, while later years (2020–2023) are more scattered</p>
+<p><strong>Positive links:</strong> E.coli, Flood, and Chloride rise together, and Depth is strongly linked with Zinc.</p>
+<p><strong>Negative links:</strong> High Lake Level means less E.coli and Chloride, while Lead drops when Depth and Zinc are high.</p>
+<p><strong>Weak links:</strong> Lake Level vs. Depth/Zinc and Chloride vs. Lead show almost no connection.</p>
+<p><strong>Conclusion:</strong> The environmental system has become less stable over time, with larger fluctuations in pollution</p>
+
+                    </div>
+                  </div>
+                )}
+{activeCategory === 'scenarios' && (
+  <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
+    <TimelineColorLegend />
+<div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
+  <p><strong>Baseline:</strong> Stable and relatively clean state. At the start, pollution levels are low, with a slight increase over time, but the lake remains mostly light blue.</p>  
+  <p><strong>Stress:</strong> Pollution spreads and intensifies. It starts with low levels, then rises sharply, covering large areas in red at maximum impact.</p>  
+  <p><strong>Recovery:</strong> Begins from a polluted (red) state. With treatment and restoration, pollution gradually decreases, shifting to green/blue colors that represent cleaner and diluted conditions.</p>  
+</div>
+  </div>
+)}
+
+
+                {/* Initial States Explanation */}
+                {activeCategory === 'timeline' && timelineIndex === 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800">
+                      <strong>Initial States (2010):</strong> Baseline environmental conditions showing the spatial distribution of E.coli, heavy metals (Pb, Zn), chloride, flood impact, lake depth, and height across Lake Kinneret before deterioration began.
+                    </p>
+                  </div>
+                )}
+
+                {/* Final States Explanation */}
+                {activeCategory === 'timeline' && timelineIndex === 1 && (
+                  <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <p className="text-sm text-orange-800">
+                      <strong>Final States (2023):</strong> Deteriorated conditions after 13 years showing increased E.coli contamination, elevated heavy metal concentrations, higher chloride levels, and expanded pollution zones. Clean areas decreased from 83.4% to 69.7% while critical areas increased from 0.3% to 2.5%.
+                    </p>
+                  </div>
+                )}
                 
                 {/* Arrow navigation for timeline category */}
                 {activeCategory === 'timeline' && (

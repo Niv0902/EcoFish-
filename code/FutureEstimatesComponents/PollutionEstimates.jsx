@@ -12,28 +12,28 @@ const categories = {
     label: 'Data Analysis',
     icon: '📊',
     color: 'blue',
-    image: { src: '/assets/PCAbiplot.png', alt: 'PCA Biplot Analysis' }
+    image: { src: '../assets/PCAbiplot.png', alt: 'PCA Biplot Analysis' }
   },
   scenarios: {
     label: 'Scenarios',
     icon: '🌊',
     color: 'green',
-    image: { src: '/assets/Scenarios.png', alt: 'Environmental Scenarios' }
+    image: { src: '../assets/Scenarios.png', alt: 'Environmental Scenarios' }
   },
   spatial: {
     label: 'Spatial Analysis',
     icon: '🗺️',
     color: 'orange',
-    image: { src: '/assets/CSR.png', alt: 'CSR Point Pattern Analysis' }
+    image: { src: '../assets/CSR.png', alt: 'CSR Point Pattern Analysis' }
   },
   timeline: {
     label: 'Lake States',
     icon: '⏱️',
     color: 'purple',
     images: [
-      { src: '/assets/InitialStates.png', alt: 'Initial Water Quality States' },
-      { src: '/assets/FinalStates.png', alt: 'Final Water Quality States' },
-      { src: '/assets/kineret_firebase_2010_2023.gif', alt: 'Lake Kinneret Environmental Timeline' }
+      { src: '../assets/InitialStates.png', alt: 'Initial Water Quality States' },
+      { src: '../assets/FinalStates.png', alt: 'Final Water Quality States' },
+      { src: '../assets/kineret_firebase_2010_2023.gif', alt: 'Lake Kinneret Environmental Timeline' }
     ]
   }
 };

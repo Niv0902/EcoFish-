@@ -5,38 +5,44 @@ import PollutionSources from './PollutionSources';
 import InteractiveYearlyAnalysis from './YearlyAnalysis';
 import DownloadComponent from './DownloadComponent';
 import TimelineColorLegend from './TimelineColorLegend';
-import { FileImage } from 'lucide-react';
+import PCAbiplot from '../assets/PCAbiplot.png';
+import Scenarios from '../assets/Scenarios.png';
+import CSR from '../assets/CSR.png';
+import InitialStates from '../assets/InitialStates.png';
+import FinalStates from '../assets/FinalStates.png';
+import TimelineGif from '../assets/kineret_firebase_2010_2023.gif';
 
 const categories = {
   analysis: {
     label: 'Data Analysis',
     icon: '📊',
     color: 'blue',
-    image: { src: '../assets/PCAbiplot.png', alt: 'PCA Biplot Analysis' }
+    image: { src: PCAbiplot, alt: 'PCA Biplot Analysis' }
   },
   scenarios: {
     label: 'Scenarios',
     icon: '🌊',
     color: 'green',
-    image: { src: '../assets/Scenarios.png', alt: 'Environmental Scenarios' }
+    image: { src: Scenarios, alt: 'Environmental Scenarios' }
   },
   spatial: {
     label: 'Spatial Analysis',
     icon: '🗺️',
     color: 'orange',
-    image: { src: '../assets/CSR.png', alt: 'CSR Point Pattern Analysis' }
+    image: { src: CSR, alt: 'CSR Point Pattern Analysis' }
   },
   timeline: {
     label: 'Lake States',
     icon: '⏱️',
     color: 'purple',
     images: [
-      { src: '../assets/InitialStates.png', alt: 'Initial Water Quality States' },
-      { src: '../assets/FinalStates.png', alt: 'Final Water Quality States' },
-      { src: '../assets/kineret_firebase_2010_2023.gif', alt: 'Lake Kinneret Environmental Timeline' }
+      { src: InitialStates, alt: 'Initial Water Quality States' },
+      { src: FinalStates, alt: 'Final Water Quality States' },
+      { src: TimelineGif, alt: 'Lake Kinneret Environmental Timeline' }
     ]
   }
 };
+
 
 const PollutionEstimates = () => {
   const [activeCategory, setActiveCategory] = useState('analysis');

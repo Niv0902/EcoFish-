@@ -20,6 +20,12 @@ const categories = {
     color: 'green',
     image: { src: '/assets/Scenarios.png', alt: 'Environmental Scenarios' }
   },
+  spatial: {
+    label: 'Spatial Analysis',
+    icon: '🗺️',
+    color: 'orange',
+    image: { src: '/assets/CSR.png', alt: 'CSR Point Pattern Analysis' }
+  },
   timeline: {
     label: 'Lake States',
     icon: '⏱️',
@@ -67,6 +73,10 @@ const PollutionEstimates = () => {
         active: 'bg-green-600 text-white border-green-700 shadow-lg',
         inactive: 'bg-white text-green-700 border-green-300 hover:bg-green-50'
       },
+      orange: {
+        active: 'bg-orange-600 text-white border-orange-700 shadow-lg',
+        inactive: 'bg-white text-orange-700 border-orange-300 hover:bg-orange-50'
+      },
       purple: {
         active: 'bg-purple-600 text-white border-purple-700 shadow-lg',
         inactive: 'bg-white text-purple-700 border-purple-300 hover:bg-purple-50'
@@ -95,7 +105,7 @@ const PollutionEstimates = () => {
         </div>
 
         {/* Statistics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <div className="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-500 transform hover:scale-105 transition-transform">
             <div className="flex items-center justify-between">
               <div>
@@ -116,9 +126,21 @@ const PollutionEstimates = () => {
                 <p className="text-4xl font-bold text-green-600">3</p>
                 <p className="text-gray-500 mt-1">Environmental scenarios modeled</p>
               </div>
-
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                 <span className="text-3xl">🌊</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-orange-500 transform hover:scale-105 transition-transform">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Spatial Points</h3>
+                <p className="text-4xl font-bold text-orange-600">200</p>
+                <p className="text-gray-500 mt-1">Random sampling points analyzed</p>
+              </div>
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                <span className="text-3xl">🗺️</span>
               </div>
             </div>
           </div>
@@ -181,26 +203,42 @@ const PollutionEstimates = () => {
                       <strong>PCA Biplot Analysis:</strong> Shows relationships between environmental variables and temporal changes (2010-2023).
                     </p>
                     <div className="text-xs text-green-700 space-y-1 text-center">
-                  <p><strong>Main trends:</strong> Early years (2010–2014) are clustered together, while later years (2020–2023) are more scattered</p>
-<p><strong>Positive links:</strong> E.coli, Flood, and Chloride rise together, and Depth is strongly linked with Zinc.</p>
-<p><strong>Negative links:</strong> High Lake Level means less E.coli and Chloride, while Lead drops when Depth and Zinc are high.</p>
-<p><strong>Weak links:</strong> Lake Level vs. Depth/Zinc and Chloride vs. Lead show almost no connection.</p>
-<p><strong>Conclusion:</strong> The environmental system has become less stable over time, with larger fluctuations in pollution</p>
-
+                      <p><strong>Main trends:</strong> Early years (2010–2014) are clustered together, while later years (2020–2023) are more scattered</p>
+                      <p><strong>Positive links:</strong> E.coli, Flood, and Chloride rise together, and Depth is strongly linked with Zinc.</p>
+                      <p><strong>Negative links:</strong> High Lake Level means less E.coli and Chloride, while Lead drops when Depth and Zinc are high.</p>
+                      <p><strong>Weak links:</strong> Lake Level vs. Depth/Zinc and Chloride vs. Lead show almost no connection.</p>
+                      <p><strong>Conclusion:</strong> The environmental system has become less stable over time, with larger fluctuations in pollution</p>
                     </div>
                   </div>
                 )}
-{activeCategory === 'scenarios' && (
-  <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
-    <TimelineColorLegend />
-<div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
-  <p><strong>Baseline:</strong> Stable and relatively clean state. At the start, pollution levels are low, with a slight increase over time, but the lake remains mostly light blue.</p>  
-  <p><strong>Stress:</strong> Pollution spreads and intensifies. It starts with low levels, then rises sharply, covering large areas in red at maximum impact.</p>  
-  <p><strong>Recovery:</strong> Begins from a polluted (red) state. With treatment and restoration, pollution gradually decreases, shifting to green/blue colors that represent cleaner and diluted conditions.</p>  
-</div>
-  </div>
-)}
 
+                {/* CSR Spatial Analysis Explanation */}
+                {activeCategory === 'spatial' && (
+                  <div className="mt-3 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                    <p className="text-sm text-orange-800 mb-2">
+                      <strong>CSR Point Pattern Analysis:</strong> Complete Spatial Randomness analysis using real environmental data from Firebase database.
+                    </p>
+                    <div className="text-xs text-orange-700 space-y-1 text-center">
+                      <p><strong>Data Sources:</strong> Chemicals (Chloride, Nitrate), Heavy Metals (Zn, Pb, Cu), and E.coli measurements</p>
+                      <p><strong>Spatial Distribution:</strong> 200 randomly positioned points with colors representing normalized environmental parameter values</p>
+                      <p><strong>Key Finding:</strong> 80% of measurements show low pollution levels (purple), with scattered high-value hotspots (green/yellow)</p>
+                      <p><strong>Environmental Status:</strong> Generally manageable pollution levels with occasional contamination events across the lake</p>
+                      <p><strong>Limitation:</strong> Random coordinates don't reflect actual lake geography - used for statistical pattern analysis only</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Scenarios Explanation */}
+                {activeCategory === 'scenarios' && (
+                  <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <TimelineColorLegend />
+                    <div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
+                      <p><strong>Baseline:</strong> Stable and relatively clean state. At the start, pollution levels are low, with a slight increase over time, but the lake remains mostly light blue.</p>  
+                      <p><strong>Stress:</strong> Pollution spreads and intensifies. It starts with low levels, then rises sharply, covering large areas in red at maximum impact.</p>  
+                      <p><strong>Recovery:</strong> Begins from a polluted (red) state. With treatment and restoration, pollution gradually decreases, shifting to green/blue colors that represent cleaner and diluted conditions.</p>  
+                    </div>
+                  </div>
+                )}
 
                 {/* Initial States Explanation */}
                 {activeCategory === 'timeline' && timelineIndex === 0 && (
@@ -267,14 +305,14 @@ const PollutionEstimates = () => {
                 <div className="w-full mt-6">
                   <TimelineLegend />
                   
-          <div className="mt-6 flex justify-center">
-  <button
-    onClick={() => setShowDetails(!showDetails)}
-    className="px-4 py-2 rounded-lg font-medium text-white transition-all transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg hover:shadow-xl"
-  >
-    {showDetails ? 'Hide Interactive Analysis' : 'Show Interactive Analysis'}
-  </button>
-</div>
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={() => setShowDetails(!showDetails)}
+                      className="px-4 py-2 rounded-lg font-medium text-white transition-all transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg hover:shadow-xl"
+                    >
+                      {showDetails ? 'Hide Interactive Analysis' : 'Show Interactive Analysis'}
+                    </button>
+                  </div>
 
                   {showDetails && (
                     <div className="mt-6 space-y-6">

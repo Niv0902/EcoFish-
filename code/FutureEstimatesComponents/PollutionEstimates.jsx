@@ -210,7 +210,7 @@ const PollutionEstimates = () => {
                     </p>
                     <div className="text-xs text-green-700 space-y-1 text-center">
                       <p><strong>Main trends:</strong> Early years (2010–2014) are clustered together, while later years (2020–2023) are more scattered</p>
-                      <p><strong>Positive links:</strong> E.coli, Flood, and Chloride rise together, and Depth is strongly linked with Zinc.</p>
+                      <p><strong>Positive links:</strong> E.coli, Flood, Nitrate and Chloride rise together, and Depth is strongly linked with Zinc.</p>
                       <p><strong>Negative links:</strong> High Lake Level means less E.coli and Chloride, while Lead drops when Depth and Zinc are high.</p>
                       <p><strong>Weak links:</strong> Lake Level vs. Depth/Zinc and Chloride vs. Lead show almost no connection.</p>
                       <p><strong>Conclusion:</strong> The environmental system has become less stable over time, with larger fluctuations in pollution</p>

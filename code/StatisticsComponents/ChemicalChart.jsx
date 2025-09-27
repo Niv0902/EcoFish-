@@ -98,7 +98,7 @@ const ChemicalChart = ({ chartData, hasAnimated }) => {
                     callbacks: {
                       afterBody: () => [
                         selectedChemical === 'chlorophyll'
-                          ? 'Chlorophyll‑a is a marker for algal biomass and blooms. High values indicate nutrient enrichment (eutrophication) and reduced water clarity.'
+                          ? 'Chloride is a marker for salinity and land-based inputs. High values often indicate runoff, sewage, or saltwater intrusion, and can stress freshwater organisms.'
                           : 'Nitrate (mg/L) indicates nutrient pollution, often from agriculture or sewage. Rising trends over time may accelerate algal blooms and reduce water quality.'
                       ]
                     }

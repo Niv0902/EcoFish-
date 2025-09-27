@@ -5,6 +5,7 @@ import PollutionSources from './PollutionSources';
 import InteractiveYearlyAnalysis from './YearlyAnalysis';
 import DownloadComponent from './DownloadComponent';
 import TimelineColorLegend from './TimelineColorLegend';
+import { FileImage } from 'lucide-react';
 
 const categories = {
   analysis: {
@@ -266,14 +267,14 @@ const PollutionEstimates = () => {
                 <div className="w-full mt-6">
                   <TimelineLegend />
                   
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={() => setShowDetails(!showDetails)}
-                      className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                    >
-                      {showDetails ? 'Hide Interactive Analysis' : 'Show Interactive Analysis'}
-                    </button>
-                  </div>
+          <div className="mt-6 flex justify-center">
+  <button
+    onClick={() => setShowDetails(!showDetails)}
+    className="px-4 py-2 rounded-lg font-medium text-white transition-all transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg hover:shadow-xl"
+  >
+    {showDetails ? 'Hide Interactive Analysis' : 'Show Interactive Analysis'}
+  </button>
+</div>
 
                   {showDetails && (
                     <div className="mt-6 space-y-6">

@@ -127,7 +127,7 @@ const PollutionEstimates = () => {
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-5xl font-bold text-blue-800 mb-3">Lake Kinneret Environmental Analysis 🌊</h1>
-          <p className="text-xl text-gray-600">Comprehensive Water Quality Assessment Dashboard with Nitrate Analysis</p>
+          <p className="text-xl text-gray-600">Comprehensive Water Quality Assessment Dashboard</p>
           <div className="w-60 md:w-100 h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-green-500 mx-auto mt-4 rounded-full shadow-sm"></div>
         </div>
 
@@ -322,7 +322,7 @@ const PollutionEstimates = () => {
                         <p><strong>Nitrate Integration:</strong> Agricultural pollution patterns affecting cellular evolution (15% weight)</p>
                         <p><strong>Multi-Factor Analysis:</strong> Cell becomes "alive" if 3+ parameters exceed thresholds OR critical pollution detected</p>
                         <p><strong>Key Result:</strong> 66% decline in problematic areas, showing lake's natural recovery capacity</p>
-                        <p><strong>Conclusion:</strong> Majority of lake area shows acceptable conditions most of the time with nitrate as key monitoring parameter</p>
+                        <p><strong>Conclusion:</strong> Majority of lake area shows acceptable conditions most of the time</p>
                       </div>
                     </div>
                   </div>

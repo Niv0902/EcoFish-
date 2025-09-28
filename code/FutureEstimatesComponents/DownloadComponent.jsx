@@ -60,19 +60,16 @@ const DownloadComponent = ({ currentImage, activeCategory, timelineIndex, isTime
   };
 
   const getImageFilename = () => {
-    if (activeCategory === 'timeline') {
-      const names = ['initial_states', 'final_states', 'timeline_animation'];
-      return `kinneret_${names[timelineIndex]}.${timelineIndex === 2 ? 'gif' : 'png'}`;
-    }
-    return `kinneret_${activeCategory}.png`;
-  };
+  if (activeCategory === 'timeline') {
+    const names = ['initial_states', 'final_states', 'timeline_animation'];
+    return `kinneret_${names[imageIndex]}.${imageIndex === 2 ? 'gif' : 'png'}`;
+  }
+  if (activeCategory === 'cellular') {
+    return `kinneret_${activeCategory}.gif`;
+  }
+  return `kinneret_${activeCategory}.png`;
+};
 
-  const getImageFormat = () => {
-    if (activeCategory === 'timeline' && timelineIndex === 2) {
-      return 'GIF';
-    }
-    return 'PNG';
-  };
 
   // Determine what to show based on current screen
   const getContextualButtons = () => {

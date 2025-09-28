@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import TimelineLegend from './TimelineLegend';
+import PollutionSources from './PollutionSources';
+import InteractiveYearlyAnalysis from './YearlyAnalysis';
 import DownloadComponent from './DownloadComponent';
-
+import TimelineColorLegend from './TimelineColorLegend';
 import PCAbiplot from '../assets/PCAbiplot.png';
 import Scenarios from '../assets/Scenarios.png';
 import CSR from '../assets/CSR.png';
-import cellularGif from '../assets/GOF.gif';
+import InitialStates from '../assets/InitialStates.png';
+import FinalStates from '../assets/FinalStates.png';
+import TimelineGif from '../assets/kineret_firebase_2010_2023.gif';
 
 const categories = {
   analysis: {
@@ -25,12 +31,14 @@ const categories = {
     color: 'orange',
     image: { src: CSR, alt: 'CSR Point Pattern Analysis' }
   },
-  cellular: {
+  timeline: {
     label: 'Lake States',
     icon: '⏱️',
     color: 'purple',
     images: [
-      { src: cellularGif, alt: 'Lake Kinneret Environmental cellular' }
+      { src: InitialStates, alt: 'Initial Water Quality States' },
+      { src: FinalStates, alt: 'Final Water Quality States' },
+      { src: TimelineGif, alt: 'Lake Kinneret Environmental Timeline' }
     ]
   }
 };
@@ -38,25 +46,25 @@ const categories = {
 
 const PollutionEstimates = () => {
   const [activeCategory, setActiveCategory] = useState('analysis');
-  const [cellularIndex, setcellularIndex] = useState(0);
+  const [timelineIndex, setTimelineIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
 
   const handleCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
-    setcellularIndex(0);
+    setTimelineIndex(0);
     setShowDetails(false);
   };
 
   const handlePrev = () => {
-    setcellularIndex((prev) => 
-      prev === 0 ? categories.cellular.images.length - 1 : prev - 1
+    setTimelineIndex((prev) => 
+      prev === 0 ? categories.timeline.images.length - 1 : prev - 1
     );
     setShowDetails(false);
   };
 
   const handleNext = () => {
-    setcellularIndex((prev) => 
-      prev === categories.cellular.images.length - 1 ? 0 : prev + 1
+    setTimelineIndex((prev) => 
+      prev === categories.timeline.images.length - 1 ? 0 : prev + 1
     );
     setShowDetails(false);
   };
@@ -84,13 +92,13 @@ const PollutionEstimates = () => {
   };
 
   const getCurrentImage = () => {
-    if (activeCategory === 'cellular') {
-      return categories.cellular.images[cellularIndex];
+    if (activeCategory === 'timeline') {
+      return categories.timeline.images[timelineIndex];
     }
     return categories[activeCategory].image;
   };
 
-  const iscellularAnimation = activeCategory === 'cellular' && cellularIndex === 2;
+  const isTimelineAnimation = activeCategory === 'timeline' && timelineIndex === 2;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-100 p-6">
@@ -146,7 +154,7 @@ const PollutionEstimates = () => {
           <div className="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-purple-500 transform hover:scale-105 transition-transform">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">cellular Data</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Timeline Data</h3>
                 <p className="text-4xl font-bold text-purple-600">14</p>
                 <p className="text-gray-500 mt-1">Years of monitoring (2010-2023)</p>
               </div>
@@ -202,32 +210,13 @@ const PollutionEstimates = () => {
                     </p>
                     <div className="text-xs text-green-700 space-y-1 text-center">
                       <p><strong>Main trends:</strong> Early years (2010–2014) are clustered together, while later years (2020–2023) are more scattered</p>
-                      <p><strong>Positive links:</strong> E.coli, Flood, Nitrate and Chloride rise together, and Depth is strongly linked with Zinc.</p>
+                      <p><strong>Positive links:</strong> E.coli, Flood, and Chloride rise together, and Depth is strongly linked with Zinc.</p>
                       <p><strong>Negative links:</strong> High Lake Level means less E.coli and Chloride, while Lead drops when Depth and Zinc are high.</p>
                       <p><strong>Weak links:</strong> Lake Level vs. Depth/Zinc and Chloride vs. Lead show almost no connection.</p>
                       <p><strong>Conclusion:</strong> The environmental system has become less stable over time, with larger fluctuations in pollution</p>
                     </div>
                   </div>
                 )}
-  {/* cellular Spatial Analysis Explanation */}
-                {activeCategory === 'cellular' && (
-  <div className="mt-3 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-    <p className="text-sm text-indigo-800 mb-2">
-      <strong>Cellular Automata Model:</strong> Game of Life-inspired model for spatial dynamics analysis using Lake Kinneret E.coli data as initial conditions.
-    </p>
-    <div className="text-xs text-indigo-700 space-y-1 text-center">
-     <div>
-  <p><strong>Initial State:</strong> 347 living cells (14.5%) based on 7 Lake Kinneret parameters</p>
-  <p><strong>Final State:</strong> 119 living cells (5%) after 101 simulation steps</p>
-  
-  <h4>🔬 Data Used from Lake Kinneret:</h4>
-  <p><strong>All 7 Parameters:</strong> E.coli, Lake Level, Lead, Flood Events, Zinc, Depth, Nitrate</p>
-  <p><strong>Multi-Factor Analysis:</strong> Cell becomes "alive" if 3+ parameters exceed thresholds OR critical pollution detected</p>
-  <p><strong>Majority of lake area shows acceptable conditions most of the time- 66% decline in problematic areas</strong></p>
-</div>
-    </div>
-  </div>
-)}
 
                 {/* CSR Spatial Analysis Explanation */}
                 {activeCategory === 'spatial' && (
@@ -248,7 +237,7 @@ const PollutionEstimates = () => {
                 {/* Scenarios Explanation */}
                 {activeCategory === 'scenarios' && (
                   <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                    <cellularColorLegend />
+                    <TimelineColorLegend />
                     <div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
                       <p><strong>Baseline:</strong> Stable and relatively clean state. At the start, pollution levels are low, with a slight increase over time, but the lake remains mostly light blue.</p>  
                       <p><strong>Stress:</strong> Pollution spreads and intensifies. It starts with low levels, then rises sharply, covering large areas in red at maximum impact.</p>  
@@ -256,17 +245,89 @@ const PollutionEstimates = () => {
                     </div>
                   </div>
                 )}
-                
 
+                {/* Initial States Explanation */}
+                {activeCategory === 'timeline' && timelineIndex === 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800">
+                      <strong>Initial States (2010):</strong> Baseline environmental conditions showing the spatial distribution of E.coli, heavy metals (Pb, Zn), chloride, flood impact, lake depth, and height across Lake Kinneret before deterioration began.
+                    </p>
+                  </div>
+                )}
+
+                {/* Final States Explanation */}
+                {activeCategory === 'timeline' && timelineIndex === 1 && (
+                  <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <p className="text-sm text-orange-800">
+                      <strong>Final States (2023):</strong> Deteriorated conditions after 13 years showing increased E.coli contamination, elevated heavy metal concentrations, higher chloride levels, and expanded pollution zones. Clean areas decreased from 83.4% to 69.7% while critical areas increased from 0.3% to 2.5%.
+                    </p>
+                  </div>
+                )}
+                
+                {/* Arrow navigation for timeline category */}
+                {activeCategory === 'timeline' && (
+                  <div className="mt-4 flex items-center justify-center gap-4">
+                    <button
+                      onClick={handlePrev}
+                      className="p-2 rounded-full bg-purple-100 hover:bg-purple-200 transition-all duration-300 hover:scale-110"
+                    >
+                      <ChevronLeft className="w-5 h-5 text-purple-600" />
+                    </button>
+                    
+                    <div className="flex space-x-2">
+                      {categories.timeline.images.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setTimelineIndex(index)}
+                          className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                            index === timelineIndex 
+                              ? 'bg-purple-500 shadow-lg scale-125' 
+                              : 'bg-gray-300 hover:bg-gray-400'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    
+                    <button
+                      onClick={handleNext}
+                      className="p-2 rounded-full bg-purple-100 hover:bg-purple-200 transition-all duration-300 hover:scale-110"
+                    >
+                      <ChevronRight className="w-5 h-5 text-purple-600" />
+                    </button>
+                  </div>
+                )}
 
                 {/* Contextual Download Buttons */}
                 <DownloadComponent 
                   currentImage={getCurrentImage()}
                   activeCategory={activeCategory}
-                  cellularIndex={cellularIndex}
-                  iscellularAnimation={iscellularAnimation}
+                  timelineIndex={timelineIndex}
+                  isTimelineAnimation={isTimelineAnimation}
                 />
               </div>
+
+              {/* Timeline animation specific content */}
+              {isTimelineAnimation && (
+                <div className="w-full mt-6">
+                  <TimelineLegend />
+                  
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={() => setShowDetails(!showDetails)}
+                      className="px-4 py-2 rounded-lg font-medium text-white transition-all transform hover:scale-105 flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg hover:shadow-xl"
+                    >
+                      {showDetails ? 'Hide Interactive Analysis' : 'Show Interactive Analysis'}
+                    </button>
+                  </div>
+
+                  {showDetails && (
+                    <div className="mt-6 space-y-6">
+                      <PollutionSources />
+                      <InteractiveYearlyAnalysis />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

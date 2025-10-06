@@ -447,14 +447,6 @@ const ScenarioVisualizer = ({ data }) => {
               {isAnimating ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               {isAnimating ? 'Pause' : 'Animate'}
             </button>
-            
-            <button
-              onClick={resetWeights}
-              className="px-4 py-2 rounded-lg font-medium bg-gray-500 text-white hover:bg-gray-600 transition-all flex items-center gap-2"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Reset
-            </button>
           </div>
 
           <div className="flex items-center gap-2">

@@ -377,7 +377,7 @@ const ScenarioVisualizer = ({ data }) => {
         .reduce((sum, [, val]) => sum + val, 0);
       
       // Ensure the new value doesn't make total exceed 1.0
-      const maxAllowed = Math.min(0.5, 1.0 - otherWeights);
+      const maxAllowed = Math.min(1.0, 1.0 - otherWeights);
       const constrainedValue = Math.min(newValue, maxAllowed);
       
       return { ...prev, [param]: constrainedValue };
@@ -587,14 +587,14 @@ const ScenarioVisualizer = ({ data }) => {
                 <input
                   type="range"
                   min="0"
-                  max="0.5"
+                  max="1.0"
                   step="0.001"
                   value={value}
                   onChange={(e) => handleWeightChange(param, e.target.value)}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
                 <div className="mt-1 text-xs text-gray-400">
-                  Max: {Math.min(0.5, 1.0 - Object.entries(weights).filter(([key]) => key !== param).reduce((sum, [, val]) => sum + val, 0)).toFixed(3)}
+                  Max: {Math.min(1.0, 1.0 - Object.entries(weights).filter(([key]) => key !== param).reduce((sum, [, val]) => sum + val, 0)).toFixed(3)}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">{info.desc}</p>
               </div>

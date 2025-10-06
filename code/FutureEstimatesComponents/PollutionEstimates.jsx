@@ -478,10 +478,26 @@ const PollutionEstimates = () => {
                   </div>
                 )}
 
+                {activeCategory === 'timeline' && imageIndex === 0 && (
+                  <div className="mt-3 p-3 bg-white rounded border border-blue-300">
+                    <p className="text-xs text-blue-700">
+                      <strong>Parameter Weights:</strong> This Environmental Cellular Automata analysis uses scientifically validated parameter weights: Heavy Metals (28%), Chloride (20%), Nitrate (15%), E.coli (12%), Flood (12%), Water Level (8%), Lake Depth (5%). These weights are consistently applied across all scenario analyses.
+                    </p>
+                  </div>
+                )}
+
                 {activeCategory === 'timeline' && imageIndex === 1 && (
                   <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                     <p className="text-sm text-orange-800 text-left">
                       <strong>Final States (2023):</strong> Deteriorated conditions after 13 years showing increased E.coli contamination, elevated heavy metal concentrations, higher chloride and nitrate levels, and expanded pollution zones. Clean areas decreased from 83.4% to 69.7% while critical areas increased from 0.3% to 2.5%.
+                    </p>
+                  </div>
+                )}
+
+                {activeCategory === 'timeline' && imageIndex === 1 && (
+                  <div className="mt-3 p-3 bg-white rounded border border-orange-300">
+                    <p className="text-xs text-orange-700">
+                      <strong>Parameter Weights:</strong> The Environmental Cellular Automata model applies the same parameter weighting system: Heavy Metals (28%), Chloride (20%), Nitrate (15%), E.coli (12%), Flood (12%), Water Level (8%), Lake Depth (5%). This ensures consistent pollution index calculations across all temporal analyses.
                     </p>
                   </div>
                 )}

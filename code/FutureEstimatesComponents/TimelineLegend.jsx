@@ -48,6 +48,13 @@ const TimelineLegend = () => {
           <span className="text-sm text-gray-700">3.5-4.0: Critical</span>
         </div>
       </div>
+
+      {/* Parameter Weights Methodology */}
+      <div className="mt-4 p-3 bg-gray-50 rounded border border-gray-300">
+        <p className="text-xs text-gray-700">
+          <strong>Parameter Weights:</strong> The timeline visualization uses scientifically validated parameter weights: Heavy Metals (28%), Chloride (20%), Nitrate (15%), E.coli (12%), Flood (12%), Water Level (8%), Lake Depth (5%). These weights reflect the relative environmental impact of each pollutant on Lake Kinneret's ecosystem health.
+        </p>
+      </div>
     </div>
   );
 };

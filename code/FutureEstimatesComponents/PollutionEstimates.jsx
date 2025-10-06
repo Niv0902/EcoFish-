@@ -57,6 +57,7 @@ const PollutionEstimates = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [firebaseData, setFirebaseData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSimulator, setShowSimulator] = useState(false);
 
   // Load Firebase data
   useEffect(() => {
@@ -74,6 +75,7 @@ const PollutionEstimates = () => {
     setActiveCategory(categoryId);
     setImageIndex(0);
     setShowDetails(false);
+    setShowSimulator(false); // Reset to methodology when switching categories
   };
 
   const handlePrev = () => {
@@ -238,10 +240,10 @@ const PollutionEstimates = () => {
                 {/* PCA Analysis Explanation */}
                 {activeCategory === 'analysis' && (
                   <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-sm text-green-800 mb-2">
+                    <p className="text-sm text-green-800 mb-2 text-left">
                       <strong>PCA Biplot Analysis:</strong> Shows relationships between environmental variables and temporal changes (2010-2023) INCLUDING NITRATE.
                     </p>
-                    <div className="text-xs text-green-700 space-y-1 text-center">
+                    <div className="text-xs text-green-700 space-y-1 text-left">
                       <p><strong>Main trends:</strong> Early years (2010–2014) are clustered together, while later years (2020–2023) are more scattered</p>
                       <p><strong>Positive links:</strong> E.coli, Flood, Nitrate and Chloride rise together, and Depth is strongly linked with Zinc.</p>
                       <p><strong>Negative links:</strong> High Lake Level means less E.coli and Chloride, while Lead drops when Depth and Zinc are high.</p>
@@ -254,10 +256,10 @@ const PollutionEstimates = () => {
                 {/* CSR Spatial Analysis Explanation */}
                 {activeCategory === 'spatial' && (
                   <div className="mt-3 p-4 bg-orange-50 rounded-lg border border-orange-200">
-                    <p className="text-sm text-orange-800 mb-2">
+                    <p className="text-sm text-orange-800 mb-2 text-left">
                       <strong>CSR Point Pattern Analysis:</strong> Complete Spatial Randomness analysis using real environmental data from Firebase database INCLUDING NITRATE.
                     </p>
-                    <div className="text-xs text-orange-700 space-y-1 text-center">
+                    <div className="text-xs text-orange-700 space-y-1 text-left">
                       <p><strong>Data Sources:</strong> Chemicals (Chloride, Nitrate), Heavy Metals (Zn, Pb, Cu), and E.coli measurements</p>
                       <p><strong>Spatial Distribution:</strong> 200 randomly positioned points with colors representing normalized environmental parameter values</p>
                       <p><strong>Nitrate Analysis:</strong> Agricultural pollution patterns showing concentration in specific lake areas</p>
@@ -272,21 +274,196 @@ const PollutionEstimates = () => {
                 {activeCategory === 'scenarios' && (
                   <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
                     <TimelineColorLegend />
-                    <div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
+                    
+                    {/* Download Button for Scenarios */}
+                    <div className="flex justify-center mt-4 mb-2">
+                      <DownloadComponent 
+                        currentImage={getCurrentImage()}
+                        activeCategory={activeCategory}
+                        imageIndex={imageIndex}
+                        isTimelineAnimation={isTimelineAnimation}
+                      />
+                    </div>
+                    
+                    {/* Arrow Navigation for Scenarios */}
+                    <div className="mt-4 flex items-center justify-center gap-4">
+                      <button
+                        onClick={() => setShowSimulator(false)}
+                        className="p-2 rounded-full transition-all duration-300 hover:scale-110 bg-green-100 hover:bg-green-200"
+                      >
+                        <ChevronLeft className="w-5 h-5 text-green-600" />
+                      </button>
+                      
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => setShowSimulator(false)}
+                          className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                            !showSimulator 
+                              ? 'shadow-lg scale-125 bg-green-500' 
+                              : 'bg-gray-300 hover:bg-gray-400'
+                          }`}
+                        />
+                        <button
+                          onClick={() => setShowSimulator(true)}
+                          className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                            showSimulator 
+                              ? 'shadow-lg scale-125 bg-green-500' 
+                              : 'bg-gray-300 hover:bg-gray-400'
+                          }`}
+                        />
+                      </div>
+                      
+                      <button
+                        onClick={() => setShowSimulator(true)}
+                        className="p-2 rounded-full transition-all duration-300 hover:scale-110 bg-green-100 hover:bg-green-200"
+                      >
+                        <ChevronRight className="w-5 h-5 text-green-600" />
+                      </button>
+                    </div>
+
+                    {/* Scientific Methodology Content */}
+                    {!showSimulator && (
+                      <div>
+                        <div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
                       <p><strong>Interactive Scenario Modeling:</strong> Manipulate parameter weights and see dramatic differences between baseline, stress, and recovery scenarios using real Firebase data.</p>  
                       <p><strong>Baseline:</strong> Normal pollution levels with moderate contamination from all sources.</p>  
                       <p><strong>Stress:</strong> Extreme pollution (4-6× baseline) simulating drought + heavy contamination.</p>  
                       <p><strong>Recovery:</strong> Active treatment reducing pollution to 30-50% of baseline levels.</p>  
                     </div>
-                    
-                    {/* Interactive Scenario Visualizer */}
-                    {!loading && firebaseData && (
-                      <ScenarioVisualizer data={firebaseData} />
+
+                    {/* Parameter Weights Scientific Explanation */}
+                    <div className="mt-6 p-5 bg-white rounded-lg border-2 border-blue-200 shadow-sm">
+                      <h4 className="text-lg font-bold text-blue-800 mb-4 flex items-center gap-2">
+                       Scientific Parameter Weight Methodology <span>⚖️</span> 
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Weight Values */}
+                        <div className="space-y-3">
+                          <h5 className="font-semibold text-blue-700 text-base">Optimized Weight Distribution:</h5>
+                          <div className="bg-blue-50 p-4 rounded-lg space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-red-700">⚡ Heavy Metals:</span>
+                              <span className="font-mono font-bold text-red-600">0.28 (28%)</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-blue-700">🧂 Chloride:</span>
+                              <span className="font-mono font-bold text-blue-600">0.20 (20%)</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-green-700">🌱 Nitrate:</span>
+                              <span className="font-mono font-bold text-green-600">0.15 (15%)</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-purple-700">🦠 E.coli:</span>
+                              <span className="font-mono font-bold text-purple-600">0.12 (12%)</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-cyan-700">🌊 Flood Risk:</span>
+                              <span className="font-mono font-bold text-cyan-600">0.12 (12%)</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-gray-700">💧 Water Level:</span>
+                              <span className="font-mono font-bold text-gray-600">0.08 (8%)</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-indigo-700">📏 Lake Depth:</span>
+                              <span className="font-mono font-bold text-indigo-600">0.05 (5%)</span>
+                            </div>
+                            <div className="border-t pt-2 mt-2">
+                              <div className="flex justify-between items-center font-bold">
+                                <span className="text-gray-800">Total:</span>
+                                <span className="font-mono text-green-600">1.00 (100%)</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Scientific Justification */}
+                        <div className="space-y-4">
+                          <h5 className="font-semibold text-blue-700 text-base">Weight Determination Methods:</h5>
+                          
+                          <div className="space-y-3">
+                            <div className="bg-red-50 p-3 rounded border-l-4 border-red-400">
+                              <h6 className="font-bold text-red-800 text-sm">1. Toxicological Impact (Heavy Metals - 28%)</h6>
+                              <p className="text-xs text-red-700 mt-1">
+                                Highest weight due to bioaccumulation, persistence, and irreversible health effects. 
+                                Based on WHO/EPA toxicity thresholds and ecosystem damage potential.
+                              </p>
+                            </div>
+                            
+                            <div className="bg-blue-50 p-3 rounded border-l-4 border-blue-400">
+                              <h6 className="font-bold text-blue-800 text-sm">2. Ecosystem Critical Indicators (Chloride - 20%)</h6>
+                              <p className="text-xs text-blue-700 mt-1">
+                                Primary salinity measure affecting all aquatic life. Israeli Water Authority standards 
+                                and Lake Kinneret's unique freshwater ecosystem sensitivity.
+                              </p>
+                            </div>
+                            
+                            <div className="bg-green-50 p-3 rounded border-l-4 border-green-400">
+                              <h6 className="font-bold text-green-800 text-sm">3. Agricultural Impact (Nitrate - 15%)</h6>
+                              <p className="text-xs text-green-700 mt-1">
+                                Eutrophication driver from fertilizer runoff. EU Nitrates Directive compliance 
+                                and correlation analysis with other contamination sources.
+                              </p>
+                            </div>
+                            
+                            <div className="bg-purple-50 p-3 rounded border-l-4 border-purple-400">
+                              <h6 className="font-bold text-purple-800 text-sm">4. Health Risk Factors (E.coli, Flood - 12% each)</h6>
+                              <p className="text-xs text-purple-700 mt-1">
+                                Immediate public health threats. WHO recreational water guidelines and 
+                                flood amplification effects on contamination spread.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Scenario Impact Explanation */}
+                      <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-300">
+                        <h6 className="font-bold text-yellow-800 text-sm mb-2 flex items-center gap-1">
+                          How Weights Affect Scenario Calculations? <span>📊</span>
+                        </h6>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                          <div className="bg-blue-100 p-2 rounded">
+                            <p><strong>Baseline Scenario:</strong></p>
+                            <p>Moderate values (0.15-0.30) × weights = Normal pollution index (0.2-0.5)</p>
+                          </div>
+                          <div className="bg-red-100 p-2 rounded">
+                            <p><strong>Stress Scenario:</strong></p>
+                            <p>High values (0.80-1.50) × weights = Critical pollution index (1.5-8.0)</p>
+                          </div>
+                          <div className="bg-green-100 p-2 rounded">
+                            <p><strong>Recovery Scenario:</strong></p>
+                            <p>Low values (0.05-0.20) × weights = Minimal pollution index (0.08-0.3)</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-yellow-700 mt-2">
+                          <strong>Weight Impact:</strong> Heavy metals (28% weight) dominate the pollution index calculation, 
+                          making metal contamination the primary driver of environmental risk assessment.
+                        </p>
+                      </div>
+                        </div>
+                      </div>
                     )}
-                    
-                    {loading && (
-                      <div className="text-center py-8 text-gray-500">
-                        Loading Firebase data for scenarios...
+
+                    {/* Environmental Scenario Simulator Content */}
+                    {showSimulator && (
+                      <div className="bg-white rounded-lg p-4 border-2 border-green-200">
+                        <h4 className="text-xl font-bold text-green-800 mb-4 text-center flex items-center justify-center gap-2">
+                          <span>🌊</span>
+                          Environmental Scenario Simulator
+                        </h4>
+                        
+                        {!loading && firebaseData && (
+                          <ScenarioVisualizer data={firebaseData} />
+                        )}
+                        
+                        {loading && (
+                          <div className="text-center py-8 text-gray-500">
+                            Loading Firebase data for scenarios...
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -295,7 +472,7 @@ const PollutionEstimates = () => {
                 {/* Timeline States Explanation */}
                 {activeCategory === 'timeline' && imageIndex === 0 && (
                   <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm text-blue-800">
+                    <p className="text-sm text-blue-800 text-left">
                       <strong>Initial States (2010):</strong> Baseline environmental conditions showing the spatial distribution of E.coli, heavy metals (Pb, Zn), chloride, nitrate, flood impact, lake depth, and height across Lake Kinneret before deterioration began.
                     </p>
                   </div>
@@ -303,7 +480,7 @@ const PollutionEstimates = () => {
 
                 {activeCategory === 'timeline' && imageIndex === 1 && (
                   <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                    <p className="text-sm text-orange-800">
+                    <p className="text-sm text-orange-800 text-left">
                       <strong>Final States (2023):</strong> Deteriorated conditions after 13 years showing increased E.coli contamination, elevated heavy metal concentrations, higher chloride and nitrate levels, and expanded pollution zones. Clean areas decreased from 83.4% to 69.7% while critical areas increased from 0.3% to 2.5%.
                     </p>
                   </div>
@@ -344,13 +521,15 @@ const PollutionEstimates = () => {
                   </div>
                 )}
 
-                {/* Contextual Download Buttons */}
-                <DownloadComponent 
-                  currentImage={getCurrentImage()}
-                  activeCategory={activeCategory}
-                  imageIndex={imageIndex}
-                  isTimelineAnimation={isTimelineAnimation}
-                />
+                {/* Contextual Download Buttons - Only for non-scenarios */}
+                {activeCategory !== 'scenarios' && (
+                  <DownloadComponent 
+                    currentImage={getCurrentImage()}
+                    activeCategory={activeCategory}
+                    imageIndex={imageIndex}
+                    isTimelineAnimation={isTimelineAnimation}
+                  />
+                )}
               </div>
 
               {/* Timeline animation specific content */}

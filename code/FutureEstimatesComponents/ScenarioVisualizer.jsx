@@ -370,7 +370,18 @@ const ScenarioVisualizer = ({ data }) => {
   };
 
   const handleWeightChange = (param, value) => {
-    setWeights(prev => ({ ...prev, [param]: parseFloat(value) }));
+    const newValue = parseFloat(value);
+    setWeights(prev => {
+      const otherWeights = Object.entries(prev)
+        .filter(([key]) => key !== param)
+        .reduce((sum, [, val]) => sum + val, 0);
+      
+      // Ensure the new value doesn't make total exceed 1.0
+      const maxAllowed = Math.min(0.5, 1.0 - otherWeights);
+      const constrainedValue = Math.min(newValue, maxAllowed);
+      
+      return { ...prev, [param]: constrainedValue };
+    });
   };
 
   const resetWeights = () => {
@@ -514,6 +525,37 @@ const ScenarioVisualizer = ({ data }) => {
       {/* Enhanced Parameter Controls */}
       <div className="bg-white p-6 rounded-xl shadow-lg border">
         <h4 className="text-lg font-bold mb-4 text-gray-800">Environmental Parameter Controls 🎛️</h4>
+        {/* Total Weight Display */}
+        <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-gray-700">Total Parameter Weight:</span>
+            <div className="flex items-center gap-2">
+              <span className={`text-xl font-bold ${
+                Object.values(weights).reduce((sum, val) => sum + val, 0) > 1.0 
+                  ? 'text-red-600' 
+                  : Object.values(weights).reduce((sum, val) => sum + val, 0) > 0.95 
+                    ? 'text-yellow-600' 
+                    : 'text-green-600'
+              }`}>
+                {(Object.values(weights).reduce((sum, val) => sum + val, 0) * 100).toFixed(1)}%
+              </span>
+              <span className="text-sm text-gray-500">/ 100%</span>
+            </div>
+          </div>
+          <div className="mt-2 w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-300 ${
+                Object.values(weights).reduce((sum, val) => sum + val, 0) > 1.0 
+                  ? 'bg-red-500' 
+                  : Object.values(weights).reduce((sum, val) => sum + val, 0) > 0.95 
+                    ? 'bg-yellow-500' 
+                    : 'bg-green-500'
+              }`}
+              style={{ width: `${Math.min(100, Object.values(weights).reduce((sum, val) => sum + val, 0) * 100)}%` }}
+            ></div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.entries(weights).map(([param, value]) => {
             const paramInfo = {
@@ -551,6 +593,9 @@ const ScenarioVisualizer = ({ data }) => {
                   onChange={(e) => handleWeightChange(param, e.target.value)}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
+                <div className="mt-1 text-xs text-gray-400">
+                  Max: {Math.min(0.5, 1.0 - Object.entries(weights).filter(([key]) => key !== param).reduce((sum, [, val]) => sum + val, 0)).toFixed(3)}
+                </div>
                 <p className="text-xs text-gray-500 mt-1">{info.desc}</p>
               </div>
             );

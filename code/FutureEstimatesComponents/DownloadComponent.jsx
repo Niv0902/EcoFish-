@@ -98,12 +98,16 @@ const DownloadComponent = ({ currentImage, activeCategory, imageIndex, isTimelin
   const getImageFilename = () => {
     if (activeCategory === 'timeline') {
       const names = ['initial_states', 'final_states', 'timeline_animation'];
-      return `kinneret_${names[imageIndex]}.${imageIndex === 2 ? 'gif' : 'png'}`;
+      const filename = `kinneret_${names[imageIndex]}.${imageIndex === 2 ? 'gif' : 'png'}`;
+      console.log('Timeline download:', { activeCategory, imageIndex, filename });
+      return filename;
     }
     if (activeCategory === 'cellular') {
       return `kinneret_${activeCategory}.gif`;
     }
-    return `kinneret_${activeCategory}.png`;
+    const filename = `kinneret_${activeCategory}.png`;
+    console.log('Regular download:', { activeCategory, filename });
+    return filename;
   };
 
 

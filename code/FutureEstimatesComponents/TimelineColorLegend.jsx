@@ -21,7 +21,7 @@ const TimelineColorLegend = () => {
       </div>
       
       <p className="text-sm text-gray-600 mb-4">
-        The animation shows pollution levels across Lake Kinneret from 2010-2023. Each color represents a different pollution intensity level.
+        This shows pollution levels across Lake Kinneret from 2010-2023. Each color represents a different pollution intensity level.
       </p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

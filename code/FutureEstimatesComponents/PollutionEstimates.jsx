@@ -324,7 +324,7 @@ const PollutionEstimates = () => {
                     {/* Scientific Methodology Content */}
                     {!showSimulator && (
                       <div>
-                        <div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
+                        <div className="text-sm text-left text-green-800 mb-2 mt-4 space-y-2">
                       <p><strong>Interactive Scenario Modeling:</strong> Manipulate parameter weights and see dramatic differences between baseline, stress, and recovery scenarios using real Firebase data.</p>  
                       <p><strong>Baseline:</strong> Normal pollution levels with moderate contamination from all sources.</p>  
                       <p><strong>Stress:</strong> Extreme pollution (4-6× baseline) simulating drought + heavy contamination.</p>  

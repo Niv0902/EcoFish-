@@ -1,25 +1,61 @@
 import React, { useState } from 'react';
 import { Download, FileImage, FileText, BarChart3, Camera } from 'lucide-react';
 
-const DownloadComponent = ({ currentImage, activeCategory, timelineIndex, isTimelineAnimation }) => {
+const DownloadComponent = ({ currentImage, activeCategory, imageIndex, isTimelineAnimation }) => {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleImageDownload = async (imageUrl, filename) => {
     setIsDownloading(true);
     try {
-      const response = await fetch(imageUrl);
+      // For GIF files, we need to handle CORS and proper blob creation
+      const response = await fetch(imageUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'image/*'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const blob = await response.blob();
+      
+      // Create download URL
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
+      
+      // Trigger download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      
+      // Clean up
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
     } catch (error) {
       console.error('Download failed:', error);
-      alert('Download failed. Please try again.');
+      // For GIF files, try alternative download method
+      if (filename.endsWith('.gif')) {
+        try {
+          const link = document.createElement('a');
+          link.href = imageUrl;
+          link.download = filename;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (fallbackError) {
+          console.error('Fallback download also failed:', fallbackError);
+          alert('Download failed. Please right-click the image and select "Save image as..."');
+        }
+      } else {
+        alert('Download failed. Please try again or right-click the image to save.');
+      }
     } finally {
       setIsDownloading(false);
     }
@@ -60,15 +96,15 @@ const DownloadComponent = ({ currentImage, activeCategory, timelineIndex, isTime
   };
 
   const getImageFilename = () => {
-  if (activeCategory === 'timeline') {
-    const names = ['initial_states', 'final_states', 'timeline_animation'];
-    return `kinneret_${names[imageIndex]}.${imageIndex === 2 ? 'gif' : 'png'}`;
-  }
-  if (activeCategory === 'cellular') {
-    return `kinneret_${activeCategory}.gif`;
-  }
-  return `kinneret_${activeCategory}.png`;
-};
+    if (activeCategory === 'timeline') {
+      const names = ['initial_states', 'final_states', 'timeline_animation'];
+      return `kinneret_${names[imageIndex]}.${imageIndex === 2 ? 'gif' : 'png'}`;
+    }
+    if (activeCategory === 'cellular') {
+      return `kinneret_${activeCategory}.gif`;
+    }
+    return `kinneret_${activeCategory}.png`;
+  };
 
 
   // Determine what to show based on current screen

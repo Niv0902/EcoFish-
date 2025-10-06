@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import TimelineLegend from './TimelineLegend';
 import PollutionSources from './PollutionSources';
 import InteractiveYearlyAnalysis from './YearlyAnalysis';
 import DownloadComponent from './DownloadComponent';
 import TimelineColorLegend from './TimelineColorLegend';
+import ScenarioVisualizer from './ScenarioVisualizer';
+import { ref, onValue } from 'firebase/database';
+import { db } from '../services/firebase';
 
 // Import all images and GIFs
 import PCAbiplot from '../assets/PCAbiplot.png';
@@ -35,7 +38,7 @@ const categories = {
     image: { src: CSR, alt: 'CSR Point Pattern Analysis' }
   },
   timeline: {
-    label: 'Timeline States',
+    label: 'Environmental Cellular Automata',
     icon: '⏱️',
     color: 'purple',
     images: [
@@ -44,20 +47,29 @@ const categories = {
       { src: TimelineGif, alt: 'Lake Kinneret Environmental Timeline' }
     ]
   },
-  cellular: {
-    label: 'Cellular Automata',
-    icon: '🎮',
-    color: 'indigo',
-    images: [
-      { src: cellularGif, alt: 'Game of Life Environmental Model' }
-    ]
-  }
+
 };
+
+
 
 const PollutionEstimates = () => {
   const [activeCategory, setActiveCategory] = useState('analysis');
   const [imageIndex, setImageIndex] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const [firebaseData, setFirebaseData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load Firebase data
+  useEffect(() => {
+    const dataRef = ref(db, '/');
+    const unsubscribe = onValue(dataRef, (snapshot) => {
+      const data = snapshot.val();
+      setFirebaseData(data);
+      setLoading(false);
+    });
+    
+    return () => unsubscribe();
+  }, []);
 
   const handleCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
@@ -119,7 +131,6 @@ const PollutionEstimates = () => {
   };
 
   const isTimelineAnimation = activeCategory === 'timeline' && imageIndex === 2;
-  const isCellularAnimation = activeCategory === 'cellular';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-100 p-6">
@@ -132,7 +143,7 @@ const PollutionEstimates = () => {
         </div>
 
         {/* Statistics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           <div className="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-blue-500 transform hover:scale-105 transition-transform">
             <div className="flex items-center justify-between">
               <div>
@@ -185,18 +196,7 @@ const PollutionEstimates = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8 border-l-4 border-indigo-500 transform hover:scale-105 transition-transform">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Cellular Model</h3>
-                <p className="text-4xl font-bold text-indigo-600">101</p>
-                <p className="text-gray-500 mt-1">Simulation steps (Game of Life)</p>
-              </div>
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
-                <span className="text-3xl">🎮</span>
-              </div>
-            </div>
-          </div>
+
         </div>
 
         {/* Category Navigation */}
@@ -273,19 +273,23 @@ const PollutionEstimates = () => {
                 {activeCategory === 'scenarios' && (
                   <div className="mt-3 p-4 bg-green-50 rounded-lg border border-green-200">
                     <TimelineColorLegend />
-                    <div className="text-sm text-green-800 text-left mb-2 mt-4 space-y-2">
-                        <p><strong>Baseline Scenario:</strong> Uses measured environmental data as reference point with normalized values ranging 0.1-0.4. Lake level calculations remain unmodified, representing normal environmental conditions with typical pollution loads from agricultural runoff, urban discharge, and natural processes.</p>
-
-                        <p><strong>Stress Scenario:</strong> Amplifies all pollution parameters by 2-3x (values range 0.4-1.2) while reducing lake level by 15% to simulate drought conditions. This combined effect creates higher pollutant concentrations due to both increased contamination sources and reduced dilution capacity, representing worst-case environmental conditions.</p>
-
-                        <p><strong>Recovery Scenario:</strong> Reduces pollution sources by 40-60% (values return to 0.1-0.4 range) and increases lake level by 5% to simulate improved water management. Additional treatment zones provide 15-50% reduction in managed areas, representing active environmental restoration with treatment interventions.</p>
-
-                        <p><strong>Parameter Weighting System:</strong> Weights were determined through comprehensive literature review of water quality standards and environmental health studies. E.coli receives highest priority at 25% based on WHO drinking water guidelines and immediate human health risks. Lead follows at 20% according to EPA toxicity classifications and bioaccumulation research. Chloride and nitrate each receive 15% as established in OECD water quality frameworks as key chemical indicators of salinity and agricultural pollution respectively. Flood impact gets 15% based on environmental amplification studies showing how extreme weather events intensify pollution dispersal. Zinc receives lowest weight at 10% following environmental toxicology literature indicating lower immediate toxicity compared to lead.</p>
-
-                        <p><strong>Environmental Multipliers:</strong> Depth factor adds up to 30% increase based on sediment chemistry studies showing heavy metal accumulation patterns in lake systems. Lake level factor creates concentration effects following fundamental dilution principles documented in limnology research, doubling pollution impact during low water periods while providing dilution during high water periods.</p>
-
-                        <p><strong>Mathematical Integration:</strong> The model multiplies scenario scaling factors by literature-based parameter weights, then applies environmental multipliers to calculate final pollution indices. However, this approach can produce values exceeding 1.0 because the 100% weight total gets multiplied by environmental factors up to 2.6x, potentially breaking the discrete state mapping system established in cellular automata literature.</p> 
+                    <div className="text-sm text-green-800 mb-2 mt-4 space-y-2">
+                      <p><strong>Interactive Scenario Modeling:</strong> Manipulate parameter weights and see dramatic differences between baseline, stress, and recovery scenarios using real Firebase data.</p>  
+                      <p><strong>Baseline:</strong> Normal pollution levels with moderate contamination from all sources.</p>  
+                      <p><strong>Stress:</strong> Extreme pollution (4-6× baseline) simulating drought + heavy contamination.</p>  
+                      <p><strong>Recovery:</strong> Active treatment reducing pollution to 30-50% of baseline levels.</p>  
                     </div>
+                    
+                    {/* Interactive Scenario Visualizer */}
+                    {!loading && firebaseData && (
+                      <ScenarioVisualizer data={firebaseData} />
+                    )}
+                    
+                    {loading && (
+                      <div className="text-center py-8 text-gray-500">
+                        Loading Firebase data for scenarios...
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -306,42 +310,16 @@ const PollutionEstimates = () => {
                   </div>
                 )}
 
-                {/* Cellular Automata Explanation */}
-                {activeCategory === 'cellular' && (
-                  <div className="mt-3 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                    <p className="text-sm text-indigo-800 mb-2">
-                      <strong>Cellular Automata Model:</strong> Game of Life-inspired model for spatial dynamics analysis using Lake Kinneret environmental data INCLUDING NITRATE as initial conditions.
-                    </p>
-                    <div className="text-xs text-indigo-700 space-y-1 text-center">
-                      <div>
-                        <p><strong>Initial State:</strong> 347 living cells (14.5%) based on 8 Lake Kinneret parameters including nitrate</p>
-                        <p><strong>Final State:</strong> 119 living cells (5%) after 101 simulation steps</p>
-                        
-                        <h4>🔬 Data Used from Lake Kinneret:</h4>
-                        <p><strong>All 8 Parameters:</strong> E.coli, Lake Level, Lead, Flood Events, Zinc, Depth, Chloride, Nitrate</p>
-                        <p><strong>Nitrate Integration:</strong> Agricultural pollution patterns affecting cellular evolution (15% weight)</p>
-                        <p><strong>Multi-Factor Analysis:</strong> Cell becomes "alive" if 3+ parameters exceed thresholds OR critical pollution detected</p>
-                        <p><strong>Key Result:</strong> 66% decline in problematic areas, showing lake's natural recovery capacity</p>
-                        <p><strong>Conclusion:</strong> Majority of lake area shows acceptable conditions most of the time</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+
                 
                 {/* Arrow navigation for categories with multiple images */}
                 {hasMultipleImages() && (
                   <div className="mt-4 flex items-center justify-center gap-4">
                     <button
                       onClick={handlePrev}
-                      className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                        activeCategory === 'timeline' 
-                          ? 'bg-purple-100 hover:bg-purple-200' 
-                          : 'bg-indigo-100 hover:bg-indigo-200'
-                      }`}
+                      className="p-2 rounded-full transition-all duration-300 hover:scale-110 bg-purple-100 hover:bg-purple-200"
                     >
-                      <ChevronLeft className={`w-5 h-5 ${
-                        activeCategory === 'timeline' ? 'text-purple-600' : 'text-indigo-600'
-                      }`} />
+                      <ChevronLeft className="w-5 h-5 text-purple-600" />
                     </button>
                     
                     <div className="flex space-x-2">
@@ -351,9 +329,7 @@ const PollutionEstimates = () => {
                           onClick={() => setImageIndex(index)}
                           className={`w-3 h-3 rounded-full transition-all duration-300 ${
                             index === imageIndex 
-                              ? `shadow-lg scale-125 ${
-                                  activeCategory === 'timeline' ? 'bg-purple-500' : 'bg-indigo-500'
-                                }` 
+                              ? 'shadow-lg scale-125 bg-purple-500' 
                               : 'bg-gray-300 hover:bg-gray-400'
                           }`}
                         />
@@ -362,15 +338,9 @@ const PollutionEstimates = () => {
                     
                     <button
                       onClick={handleNext}
-                      className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                        activeCategory === 'timeline' 
-                          ? 'bg-purple-100 hover:bg-purple-200' 
-                          : 'bg-indigo-100 hover:bg-indigo-200'
-                      }`}
+                      className="p-2 rounded-full transition-all duration-300 hover:scale-110 bg-purple-100 hover:bg-purple-200"
                     >
-                      <ChevronRight className={`w-5 h-5 ${
-                        activeCategory === 'timeline' ? 'text-purple-600' : 'text-indigo-600'
-                      }`} />
+                      <ChevronRight className="w-5 h-5 text-purple-600" />
                     </button>
                   </div>
                 )}
@@ -381,7 +351,6 @@ const PollutionEstimates = () => {
                   activeCategory={activeCategory}
                   imageIndex={imageIndex}
                   isTimelineAnimation={isTimelineAnimation}
-                  isCellularAnimation={isCellularAnimation}
                 />
               </div>
 

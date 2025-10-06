@@ -16,7 +16,6 @@ import CSR from '../assets/CSR.png';
 import InitialStates from '../assets/InitialStates.png';
 import FinalStates from '../assets/FinalStates.png';
 import TimelineGif from '../assets/kineret_firebase_2010_2023.gif';
-import cellularGif from '../assets/GOF.gif';
 
 const categories = {
   analysis: {

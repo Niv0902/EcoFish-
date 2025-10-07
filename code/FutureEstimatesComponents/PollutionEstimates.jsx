@@ -262,7 +262,6 @@ const PollutionEstimates = () => {
                     <div className="text-xs text-orange-700 space-y-1 text-left">
                       <p><strong>Data Sources:</strong> Chemicals (Chloride, Nitrate), Heavy Metals (Zn, Pb, Cu), and E.coli measurements</p>
                       <p><strong>Spatial Distribution:</strong> 200 randomly positioned points with colors representing normalized environmental parameter values</p>
-                      <p><strong>Nitrate Analysis:</strong> Agricultural pollution patterns showing concentration in specific lake areas</p>
                       <p><strong>Key Finding:</strong> 80% of measurements show low pollution levels (purple), with scattered high-value hotspots (green/yellow)</p>
                       <p><strong>Environmental Status:</strong> Generally manageable pollution levels with occasional contamination events across the lake</p>
                       <p><strong>Limitation:</strong> Random coordinates don't reflect actual lake geography - used for statistical pattern analysis only</p>

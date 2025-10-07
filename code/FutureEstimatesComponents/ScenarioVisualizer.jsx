@@ -712,7 +712,7 @@ const ScenarioVisualizer = ({ data }) => {
                   cy={selectedPoint.y}
                   r="0.5"
                   fill="none"
-                  stroke="red"
+                  stroke="black"
                   strokeWidth="0.2"
                   className="animate-ping"
                 />
@@ -720,7 +720,7 @@ const ScenarioVisualizer = ({ data }) => {
                   cx={selectedPoint.x}
                   cy={selectedPoint.y}
                   r="0.3"
-                  fill="red"
+                  fill="black"
                   opacity="0.8"
                 />
               </g>

@@ -19,7 +19,7 @@ import TimelineGif from '../assets/kineret_firebase_2010_2023.gif';
 
 const categories = {
   analysis: {
-    label: 'Data Analysis',
+    label: 'PCA biplot Analysis',
     icon: '📊',
     color: 'blue',
     image: { src: PCAbiplot, alt: 'PCA Biplot Analysis' }

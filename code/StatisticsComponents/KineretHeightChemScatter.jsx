@@ -154,8 +154,8 @@ const KineretHeightChemScatter = ({ dataArr }) => {
         <strong>Conclusion:</strong><br />
         <ul className="list-disc ml-6">
           <li>Nitrate and Nitrite concentrations are generally low and do not show a clear trend with water level.</li>
-          <li>Chlorophyll-a concentrations are higher and may show some increase with rising water level, but further statistical analysis is recommended.</li>
-          <li>Overall, there is no strong or linear relationship between Kineret water level and Nitrate/Nitrite concentrations. Chlorophyll-a may have a weak correlation.</li>
+          <li>Chloride concentrations are higher and may show some increase with rising water level, but further statistical analysis is recommended.</li>
+          <li>Overall, there is no strong or linear relationship between Kineret water level and Nitrate/Nitrite concentrations. Chloride may have a weak correlation.</li>
         </ul>
       </div>
     </div>

@@ -144,7 +144,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
         labels: years,
         datasets: [
           {
-            label: "Chlorophyll-a (µg/L)",
+            label: "Chloride (µg/L)",
             data: chlorophyllData,
             borderColor: "rgba(34,197,94,1)",
             backgroundColor: (ctx) =>
@@ -314,7 +314,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
             position: "left",
             title: {
               display: true,
-              text: "Chlorophyll-a (µg/L)",
+              text: "Chloride (µg/L)",
               font: { size: 14, weight: "bold" },
               color: "rgba(34,197,94,1)",
             },
@@ -497,11 +497,11 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Chlorophyll Analysis */}
+            {/* Chloride Analysis */}
             <div className="bg-green-50 border border-green-200 rounded-xl p-5">
               <h4 className="font-bold text-green-800 mb-3 flex items-center">
                 <span className="w-4 h-4 bg-green-500 rounded-full mr-2"></span>
-                Chlorophyll-a Trends
+                Chloride Trends
               </h4>
               <div className="space-y-2">
                 {chlorophyllTrends.length ? (
@@ -512,7 +512,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
                   ))
                 ) : (
                   <p className="text-sm text-green-700">
-                    Chlorophyll levels show stable patterns within normal ranges.
+                    Chloride levels show stable patterns within normal ranges.
                   </p>
                 )}
                 <div className="mt-3 p-2 bg-green-100 rounded text-xs text-green-800">
@@ -567,7 +567,7 @@ const BeautifulYearlyTrendsChart = ({ chartData }) => {
           <p className="text-sm text-gray-700 leading-relaxed">
             {showMetals
               ? "Heavy metals can accumulate in aquatic environments, posing risks to organisms and humans. Monitoring trends helps identify pollution sources and guide remediation."
-              : "The multi-year trends reveal interconnected water-quality patterns. Chlorophyll spikes often co-occur with increased nutrient loading, while E. coli outbreaks typically follow rain/flood events or infrastructure failures. Sustained improvements require integrated watershed management addressing both point and non-point pollution sources."}
+              : "The multi-year trends reveal interconnected water-quality patterns. Chloride spikes often co-occur with increased nutrient loading, while E. coli outbreaks typically follow rain/flood events or infrastructure failures. Sustained improvements require integrated watershed management addressing both point and non-point pollution sources."}
           </p>
         </div>
       </div>
